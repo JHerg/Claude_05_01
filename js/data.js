@@ -353,35 +353,6 @@ export const CHECKLISTS = [
   },
 ];
 
-// ---------- Englisch-Vokabeln (5./6. Klasse) ----------
-
-export const VOCAB_SETS = [
-  {
-    id: "tiere", emoji: "🐾", title: "Tiere / Animals",
-    words: [["dog", "Hund"], ["cat", "Katze"], ["horse", "Pferd"], ["bird", "Vogel"], ["fish", "Fisch"], ["rabbit", "Kaninchen"], ["mouse", "Maus"], ["bear", "Bär"], ["lion", "Löwe"], ["monkey", "Affe"], ["snake", "Schlange"], ["spider", "Spinne"], ["sheep", "Schaf"], ["cow", "Kuh"], ["pig", "Schwein"], ["fox", "Fuchs"]],
-  },
-  {
-    id: "schule", emoji: "🏫", title: "Schule / School",
-    words: [["teacher", "Lehrer/in"], ["pupil", "Schüler/in"], ["classroom", "Klassenzimmer"], ["pencil", "Bleistift"], ["rubber", "Radiergummi"], ["scissors", "Schere"], ["timetable", "Stundenplan"], ["break", "Pause"], ["homework", "Hausaufgaben"], ["subject", "Schulfach"], ["maths", "Mathe"], ["science", "Naturwissenschaften"], ["history", "Geschichte"], ["art", "Kunst"], ["P.E.", "Sport(unterricht)"], ["library", "Bücherei"]],
-  },
-  {
-    id: "essen", emoji: "🍎", title: "Essen / Food",
-    words: [["apple", "Apfel"], ["bread", "Brot"], ["cheese", "Käse"], ["chicken", "Hähnchen"], ["potato", "Kartoffel"], ["vegetables", "Gemüse"], ["fruit", "Obst"], ["breakfast", "Frühstück"], ["lunch", "Mittagessen"], ["dinner", "Abendessen"], ["hungry", "hungrig"], ["thirsty", "durstig"], ["delicious", "lecker"], ["sweets", "Süßigkeiten"], ["juice", "Saft"], ["egg", "Ei"]],
-  },
-  {
-    id: "zuhause", emoji: "🏠", title: "Zuhause / At home",
-    words: [["kitchen", "Küche"], ["bathroom", "Badezimmer"], ["bedroom", "Schlafzimmer"], ["living room", "Wohnzimmer"], ["garden", "Garten"], ["stairs", "Treppe"], ["window", "Fenster"], ["door", "Tür"], ["table", "Tisch"], ["chair", "Stuhl"], ["cupboard", "Schrank"], ["fridge", "Kühlschrank"], ["mirror", "Spiegel"], ["carpet", "Teppich"], ["lamp", "Lampe"], ["key", "Schlüssel"]],
-  },
-  {
-    id: "koerper", emoji: "💪", title: "Körper / Body",
-    words: [["head", "Kopf"], ["hair", "Haare"], ["eye", "Auge"], ["ear", "Ohr"], ["nose", "Nase"], ["mouth", "Mund"], ["tooth", "Zahn"], ["shoulder", "Schulter"], ["arm", "Arm"], ["hand", "Hand"], ["finger", "Finger"], ["leg", "Bein"], ["knee", "Knie"], ["foot", "Fuß"], ["back", "Rücken"], ["tummy", "Bauch"]],
-  },
-  {
-    id: "freizeit", emoji: "🎮", title: "Freizeit / Free time",
-    words: [["to play", "spielen"], ["to read", "lesen"], ["to swim", "schwimmen"], ["to ride a bike", "Fahrrad fahren"], ["to draw", "zeichnen"], ["to sing", "singen"], ["to dance", "tanzen"], ["hobby", "Hobby"], ["football", "Fußball"], ["game", "Spiel"], ["music", "Musik"], ["movie", "Film"], ["playground", "Spielplatz"], ["holiday", "Ferien/Urlaub"], ["friend", "Freund/in"], ["fun", "Spaß"]],
-  },
-];
-
 // ---------- Wissens-Quiz (für Kinder ca. 9–13) ----------
 // a = Index der richtigen Antwort, info = kurze Erklärung danach.
 

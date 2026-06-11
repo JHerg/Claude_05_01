@@ -1,7 +1,7 @@
 // Service Worker: macht die App nach dem ersten Besuch komplett offline nutzbar.
 // Bei Updates die CACHE-Version hochzählen.
 
-const CACHE = "familienstudio-v3";
+const CACHE = "familienstudio-v4";
 
 const ASSETS = [
   "./",
@@ -17,6 +17,7 @@ const ASSETS = [
   "./js/adventures2.js",
   "./js/hub.js",
   "./js/data.js",
+  "./js/vocab.js",
 ];
 
 self.addEventListener("install", (event) => {

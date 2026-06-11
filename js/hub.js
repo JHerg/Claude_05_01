@@ -1,7 +1,8 @@
 // Der Alltagshelfer (offline): Lern-Trainer, Koch-Pilot, Schreibwerkstatt,
 // Planer und Taschengeld-Tracker — alles ohne Internet, ohne Kosten.
 
-import { RECIPES, LETTERS, CHECKLISTS, VOCAB_SETS, QUIZ_FRAGEN } from "./data.js";
+import { RECIPES, LETTERS, CHECKLISTS, QUIZ_FRAGEN } from "./data.js";
+import { VOCAB_LEVELS } from "./vocab.js";
 import { getModuleState, setModuleState, newId } from "./storage.js";
 import { el, escapeHtml, pick, shuffle } from "./ui.js";
 
@@ -55,7 +56,7 @@ function renderLernen(container) {
     el("button", { class: "module-card", onclick: () => sprint(container) },
       el("span", { class: "module-emoji" }, "⚡"), el("strong", {}, "Einmaleins-Sprint"), el("small", {}, "60 Sekunden — wie viele schaffst du?")),
     el("button", { class: "module-card", onclick: () => vokabeln(container) },
-      el("span", { class: "module-emoji" }, "🇬🇧"), el("strong", {}, "Englisch-Vokabeln"), el("small", {}, "Lernkarten und Quiz, 6 Themen-Sets.")),
+      el("span", { class: "module-emoji" }, "🇬🇧"), el("strong", {}, "Englisch-Vokabeln"), el("small", {}, "Klasse 5/6 und 8/9 — 25 Themen mit fast 500 Vokabeln, als Lernkarten und Quiz.")),
     el("button", { class: "module-card", onclick: () => wissensQuiz(container) },
       el("span", { class: "module-emoji" }, "🌍"), el("strong", {}, "Wissens-Quiz"), el("small", {}, "Weltraum, Tiere, Körper & Co. — mit Aha-Fakten zu jeder Frage.")),
   );
@@ -211,31 +212,59 @@ function result(container, backTo, big, sub, isBest) {
 }
 
 function vokabeln(container) {
-  const setButtons = VOCAB_SETS.map((set) =>
-    el("button", { class: "btn btn-choice", onclick: () => vokabelSet(container, set) }, `${set.emoji} ${set.title} (${set.words.length} Wörter)`),
+  // Stufe 1: Klassenstufe wählen (zuletzt gewählte wird gemerkt)
+  const lastLevel = getModuleState("vokabel_level", null);
+  const levelButtons = VOCAB_LEVELS.map((level) => {
+    const wordCount = level.sets.reduce((n, s) => n + s.words.length, 0);
+    return el("button", { class: "module-card", onclick: () => { setModuleState("vokabel_level", level.id); vokabelLevel(container, level); } },
+      el("span", { class: "module-emoji" }, level.emoji),
+      el("strong", {}, level.title),
+      el("small", {}, `${level.desc} (${level.sets.length} Themen, ${wordCount} Vokabeln)`),
+    );
+  });
+  container.replaceChildren(
+    el("section", { class: "panel" },
+      el("h3", {}, "🇬🇧 Vokabeln — wähle deine Klassenstufe"),
+      el("div", { class: "module-grid" }, ...levelButtons),
+    ),
+  );
+  // Direkt zur zuletzt genutzten Stufe springen können
+  if (lastLevel) {
+    const level = VOCAB_LEVELS.find((l) => l.id === lastLevel);
+    if (level) container.append(el("p", { class: "muted center" },
+      el("button", { class: "btn btn-small btn-ghost", onclick: () => vokabelLevel(container, level) }, `↩ Weiter mit ${level.title}`),
+    ));
+  }
+}
+
+function vokabelLevel(container, level) {
+  const setButtons = level.sets.map((set) =>
+    el("button", { class: "btn btn-choice", onclick: () => vokabelSet(container, level, set) }, `${set.emoji} ${set.title} (${set.words.length})`),
   );
   container.replaceChildren(
     el("section", { class: "panel panel-narrow" },
-      el("h3", {}, "🇬🇧 Vokabeln — wähle ein Set"),
+      el("h3", {}, `${level.emoji} ${level.title} — wähle ein Thema`),
       el("div", { class: "choices" }, ...setButtons),
+      el("button", { class: "btn btn-ghost btn-small", onclick: () => vokabeln(container) }, "← Andere Klassenstufe"),
     ),
   );
 }
 
-function vokabelSet(container, set) {
+function vokabelSet(container, level, set) {
   container.replaceChildren(
     el("section", { class: "panel panel-narrow" },
       el("h3", {}, `${set.emoji} ${set.title}`),
+      el("p", { class: "muted" }, `${level.title} · ${set.words.length} Vokabeln`),
       el("div", { class: "choices" },
-        el("button", { class: "btn btn-choice", onclick: () => flashcards(container, set) }, "🃏 Lernkarten (tippen zum Umdrehen)"),
-        el("button", { class: "btn btn-choice", onclick: () => vocabQuiz(container, set) }, "❓ Quiz (10 Fragen)"),
-        el("button", { class: "btn btn-ghost", onclick: () => vokabeln(container) }, "Zurück"),
+        el("button", { class: "btn btn-choice", onclick: () => flashcards(container, level, set) }, "🃏 Lernkarten (tippen zum Umdrehen)"),
+        el("button", { class: "btn btn-choice", onclick: () => vocabQuiz(container, level, set) }, "❓ Quiz (10 Fragen)"),
+        el("button", { class: "btn btn-ghost", onclick: () => vokabelLevel(container, level) }, "Zurück"),
       ),
     ),
   );
 }
 
-function flashcards(container, set) {
+function flashcards(container, level, set) {
   const cards = shuffle(set.words);
   let i = 0, flipped = false;
   const card = el("button", { class: "flashcard" });
@@ -260,12 +289,12 @@ function flashcards(container, set) {
     el("section", { class: "panel panel-narrow center" },
       el("h3", {}, `🃏 ${set.title}`),
       card, progress,
-      el("button", { class: "btn btn-ghost btn-small", onclick: () => vokabelSet(container, set) }, "Zurück"),
+      el("button", { class: "btn btn-ghost btn-small", onclick: () => vokabelSet(container, level, set) }, "Zurück"),
     ),
   );
 }
 
-function vocabQuiz(container, set) {
+function vocabQuiz(container, level, set) {
   const questions = shuffle(set.words).slice(0, 10);
   let i = 0, score = 0;
   const qEl = el("div", { class: "quiz-question" });
@@ -284,7 +313,7 @@ function vocabQuiz(container, set) {
         else { feedback.textContent = `❌ „${en}“ heißt „${de}“.`; feedback.className = "quiz-feedback error"; }
         i++;
         if (i >= questions.length) {
-          const isBest = saveBest(`Vokabeln ${set.title}, von 10`, score);
+          const isBest = saveBest(`Vokabeln ${level.emoji} ${set.title}, von 10`, score);
           setTimeout(() => result(container, "lernen", `${score} von 10 richtig!`, score >= 8 ? "🌟 Vocabulary champion!" : "💪 Keep practising!", isBest), 800);
           return;
         }
