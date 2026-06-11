@@ -1,125 +1,16 @@
-// Die Abenteuer-Maschine: Claude als Spielleiter eines Text-Adventures
-// mit HUD (Herzen, Inventar, Quest), SVG-Szenenbildern und Würfelproben.
+// Die Abenteuer-Maschine (offline): Engine für die handgeschriebenen,
+// verzweigten Abenteuer aus adventures.js — mit Herzen, Inventar,
+// Würfelproben, Rätseln und SVG-Szenen. Keine API, keine Kosten.
 
-import { sendMessage, fileToImageBlock, friendlyError } from "./api.js";
-import { listSaves, getSave, putSave, deleteSave, newId, getSettings } from "./storage.js";
-import { el, md, safeSvg, spinner, escapeHtml, scrollToBottom } from "./ui.js";
+import { ADVENTURES, getAdventure } from "./adventures.js";
+import { listSaves, getSave, putSave, deleteSave, newId } from "./storage.js";
+import { el, escapeHtml, scrollToBottom } from "./ui.js";
 
-const SCENARIOS = [
-  {
-    id: "drache", emoji: "🐉", title: "Drachenfeuer",
-    tagline: "Rette das Königreich Funkenfels vor dem erwachten Schattendrachen.",
-    world: "Fantasy-Königreich Funkenfels: Burgen, Zauberwälder, sprechende Tiere. Der Held ist ein junger Drachenhüter-Lehrling. Der uralte Schattendrache ist erwacht und stiehlt alle Farben des Landes. Quest: die drei Farbkristalle finden und den Drachen nicht besiegen, sondern von seiner Einsamkeit heilen.",
-  },
-  {
-    id: "raum", emoji: "🚀", title: "Sternenbasis 7",
-    tagline: "Deine Raumstation treibt führerlos durchs All — übernimm das Kommando!",
-    world: "Science-Fiction: Die Raumstation 'Sternenbasis 7' mit schrulligem Bord-Roboter B0B. Die Crew ist in Rettungskapseln evakuiert, der Held (Junior-Kadett) blieb versehentlich zurück. Quest: die Station durch einen Asteroidengürtel steuern, den Reaktor flicken und das Geheimnis des blinden Passagiers (ein harmloses, hungriges Glibberwesen) lüften.",
-  },
-  {
-    id: "detektiv", emoji: "🕵️", title: "Detektivbüro Blitz",
-    tagline: "Der Pokal der Schule ist verschwunden. Ein Fall für dich!",
-    world: "Gegenwart, Kleinstadt: Der Held leitet das geheime 'Detektivbüro Blitz' im Baumhaus. Der Wanderpokal der Schule ist vor dem großen Fest verschwunden. Verdächtige: der mürrische Hausmeister, die neue Schülerin, eine diebische Elster. Quest: Hinweise sammeln, Alibis prüfen, den Fall mit Köpfchen lösen (die Auflösung ist harmlos und versöhnlich).",
-  },
-  {
-    id: "insel", emoji: "🏝️", title: "Die vergessene Insel",
-    tagline: "Schiffbruch! Überlebe, erforsche und finde den Piratenschatz.",
-    world: "Abenteuer-Insel: Nach einem Sturm strandet der Held auf einer tropischen Insel mit Dschungel, Lagune, alten Piratenruinen und einem frechen Papagei als Begleiter. Quest: ein Lager bauen, die Rätselkarte des Piraten Knochenbein entschlüsseln, den Schatz finden und mit dem reparierten Boot heimkehren.",
-  },
-  {
-    id: "fussball", emoji: "⚽", title: "Pokal der Legenden",
-    tagline: "Führe den FC Wirbelwind zum magischen Turnier-Sieg.",
-    world: "Fußball mit einer Prise Magie: Der Held ist Kapitän des Außenseiter-Teams FC Wirbelwind beim geheimnisvollen 'Pokal der Legenden'. Gegner-Teams haben verrückte Spezialkräfte. Quest: Training, Taktik und Teamgeist — zwischen den Spielen gibt es Rätsel und kleine Missionen, Spiele werden als spannende Szenen mit Entscheidungen erzählt.",
-  },
-  {
-    id: "frei", emoji: "✨", title: "Eigene Idee",
-    tagline: "Du bestimmst, worum es geht — Claude baut die Welt.",
-    world: "",
-  },
-];
+const DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
-// Structured Output: garantiert parsebares JSON für jeden Spielzug.
-const GAME_FORMAT = {
-  type: "json_schema",
-  schema: {
-    type: "object",
-    properties: {
-      story: { type: "string", description: "Nächster Erzählabschnitt in Markdown, 80–180 Wörter, Deutsch, du-Form." },
-      scene_svg: { type: "string", description: "Inline-SVG der Szene (viewBox 0 0 400 240) oder leerer String, wenn die Szene gleich bleibt." },
-      choices: { type: "array", items: { type: "string" }, description: "Genau 3 kurze Handlungsoptionen (max. 8 Wörter)." },
-      state: {
-        type: "object",
-        properties: {
-          hp: { type: "integer", description: "Aktuelle Herzen." },
-          max_hp: { type: "integer", description: "Maximale Herzen." },
-          location: { type: "string", description: "Aktueller Ort, kurz." },
-          inventory: { type: "array", items: { type: "string" }, description: "Gegenstände, je mit Emoji vorne, max. 8." },
-          quest: { type: "string", description: "Aktuelles Ziel in einem Satz." },
-        },
-        required: ["hp", "max_hp", "location", "inventory", "quest"],
-        additionalProperties: false,
-      },
-      dice_check: { type: "string", description: "Beschreibung der anstehenden Würfelprobe oder leerer String." },
-      game_over: { type: "boolean", description: "true nur beim Happy End der Quest." },
-    },
-    required: ["story", "scene_svg", "choices", "state", "dice_check", "game_over"],
-    additionalProperties: false,
-  },
-};
-
-function buildSystemPrompt(save) {
-  const learning = save.learning
-    ? "Baue etwa jede 3.–4. Runde ein kleines Lernrätsel in die Geschichte ein (Kopfrechnen, Logik oder einfache Englisch-Vokabeln) — z. B. ein Zahlenschloss, einen Geheimcode oder einen Zauberspruch. Die richtige Antwort bringt einen Vorteil, eine falsche ist nie schlimm."
-    : "Baue keine Schul-Lernrätsel ein.";
-  return `Du bist der Spielleiter eines interaktiven Text-Abenteuers für ein Kind (ca. 10–12 Jahre).
-
-INHALTSREGELN
-- Sprache: Deutsch, du-Form, lebendig, humorvoll, kurze Sätze.
-- Spannend, aber altersgerecht: keine grausamen Details, kein Blut, kein echter Horror, nichts Verstörendes. Gegner werden überlistet, vertrieben oder versöhnt.
-- Der Held kann scheitern, aber nie endgültig: Bei 0 Herzen wird er auf freundliche Weise gerettet, verliert etwas Zeit oder einen Gegenstand, und es geht weiter (game_over bleibt false, hp wird wieder aufgefüllt).
-- game_over ist nur true bei einem richtigen, positiven Abschluss der Quest (Happy End mit kleiner Feier).
-- Keine Markennamen, keine Links, keine Anspielungen auf echte Personen.
-- Wenn der Spieler etwas Unpassendes eingibt, lenke charmant zurück zur Geschichte.
-
-SPIELMECHANIK
-- story: 80–180 Wörter, endet immer mit einer Situation, die eine Entscheidung verlangt.
-- choices: genau 3 kurze, klar unterschiedliche Optionen.
-- Der Spieler darf auch freie Aktionen tippen — reagiere fair und kreativ.
-- state: Führe Herzen (Start 5/5), Ort, Inventar (mit Emoji, max. 8) und Quest konsequent und widerspruchsfrei weiter. Gegenstände, die benutzt werden, verschwinden; gefundene kommen dazu.
-- dice_check: Wenn die gewählte Aktion riskant ist, fordere EINE Würfelprobe an. Beschreibe kurz, was bei 4–6 (Erfolg) und 1–3 (Misserfolg, z. B. -1 Herz) passiert. Der Spieler antwortet mit "🎲 Gewürfelt: N" — werte das Ergebnis dann genau so aus. Sonst leerer String. Höchstens jede zweite Runde eine Probe.
-- ${learning}
-
-SZENENBILD (scene_svg)
-- Male zu neuen Schauplätzen oder dramatischen Momenten eine Illustration als Inline-SVG: viewBox="0 0 400 240", flaches, freundliches Comic-Design, kräftige Farben, große einfache Formen, weicher Himmel-/Hintergrundverlauf erlaubt.
-- KEINE Script-Tags, keine externen Referenzen, keine Event-Handler, kein Text nötig.
-- Wenn die Szene praktisch gleich bleibt: leerer String.
-
-WELT
-${save.world}
-
-HELD
-Name: ${save.heroName}${save.heroFromDrawing ? "\nDer Spieler hat seinen Helden selbst gezeichnet (siehe Bild in der ersten Nachricht). Beschreibe den Helden im Spiel genau so, wie er auf der Zeichnung aussieht, und erwähne liebevoll Details daraus." : ""}`;
-}
-
-function parseTurn(text) {
-  try { return JSON.parse(text); } catch { /* weiter unten */ }
-  const m = text.match(/\{[\s\S]*\}/);
-  if (m) { try { return JSON.parse(m[0]); } catch { /* gibt null */ } }
-  return null;
-}
-
-function userTextOf(content) {
-  if (typeof content === "string") return content;
-  const t = content.find((b) => b.type === "text");
-  return t ? t.text : "";
-}
-
-// ---------- Routing ----------
-
-export async function route(container, parts) {
+export function route(container, parts) {
   document.body.classList.add("theme-adventure");
   if (parts.length === 0) return renderHome(container);
-  if (parts[0] === "new") return renderNewGame(container);
   if (parts[0] === "play" && parts[1]) return renderPlay(container, parts[1]);
   location.hash = "#/adventure";
 }
@@ -130,27 +21,40 @@ function renderHome(container) {
   container.replaceChildren(
     el("section", { class: "hero" },
       el("h2", {}, "🐉 Abenteuer-Maschine"),
-      el("p", {}, "Claude ist dein Spielleiter. Wähle eine Welt, erschaffe deinen Helden — und erlebe eine Geschichte, die auf alles reagiert, was du tust."),
-      el("button", { class: "btn btn-big", onclick: () => (location.hash = "#/adventure/new") }, "✨ Neues Abenteuer starten"),
+      el("p", {}, "Wähle dein Abenteuer und triff deine Entscheidungen: Herzen, Rucksack, Würfelglück — und mehr als ein Weg zum Happy End. Alles offline, jederzeit speicherbar."),
     ),
   );
+
+  const grid = el("div", { class: "scenario-grid scenario-grid-big" });
+  for (const adv of ADVENTURES) {
+    grid.append(
+      el("button", { class: "scenario-card", onclick: () => startNew(adv.id) },
+        el("span", { class: "scenario-emoji" }, adv.emoji),
+        el("strong", {}, adv.title),
+        el("small", {}, adv.tagline),
+        el("span", { class: "world-cta" }, "Neu starten ➤"),
+      ),
+    );
+  }
+  container.append(el("h3", {}, "Abenteuer"), grid);
 
   const saves = listSaves();
   if (saves.length) {
     const list = el("div", { class: "save-list" });
     for (const s of saves) {
-      const scen = SCENARIOS.find((x) => x.id === s.scenarioId);
+      const adv = getAdventure(s.adventureId);
+      if (!adv) continue;
       list.append(
         el("div", { class: "save-card" },
           el("div", { class: "save-info" },
-            el("strong", {}, `${scen?.emoji || "✨"} ${s.title}`),
-            el("small", {}, `${s.turns} Züge · zuletzt ${new Date(s.updatedAt).toLocaleDateString("de-DE")}`),
+            el("strong", {}, `${adv.emoji} ${adv.title}`),
+            el("small", {}, `❤️ ${s.hp}/${adv.maxHp} · ${s.steps || 0} Schritte · zuletzt ${new Date(s.updatedAt).toLocaleDateString("de-DE")}${s.finished ? " · 🏅 geschafft!" : ""}`),
           ),
           el("div", { class: "save-actions" },
-            el("button", { class: "btn", onclick: () => (location.hash = `#/adventure/play/${s.id}`) }, "▶ Weiterspielen"),
+            el("button", { class: "btn", onclick: () => (location.hash = `#/adventure/play/${s.id}`) }, s.finished ? "📖 Nochmal ansehen" : "▶ Weiterspielen"),
             el("button", {
               class: "btn btn-ghost", title: "Spielstand löschen",
-              onclick: () => { if (confirm(`„${s.title}" wirklich löschen?`)) { deleteSave(s.id); renderHome(container); } },
+              onclick: () => { if (confirm(`Spielstand „${adv.title}" wirklich löschen?`)) { deleteSave(s.id); renderHome(container); } },
             }, "🗑"),
           ),
         ),
@@ -160,290 +64,234 @@ function renderHome(container) {
   }
 }
 
-// ---------- Neues Spiel ----------
-
-function renderNewGame(container) {
-  let selectedScenario = SCENARIOS[0].id;
-  let drawingFile = null;
-
-  const scenarioGrid = el("div", { class: "scenario-grid" });
-  const customIdea = el("textarea", {
-    class: "input", rows: "3", style: "display:none",
-    placeholder: "Worum soll es gehen? Z. B.: Ich bin ein Ninja-Hamster, der den Käsemond retten muss …",
-  });
-
-  const refreshCards = () => {
-    scenarioGrid.replaceChildren(...SCENARIOS.map((s) =>
-      el("button", {
-        class: "scenario-card" + (s.id === selectedScenario ? " selected" : ""),
-        type: "button",
-        onclick: () => { selectedScenario = s.id; customIdea.style.display = s.id === "frei" ? "" : "none"; refreshCards(); },
-      },
-        el("span", { class: "scenario-emoji" }, s.emoji),
-        el("strong", {}, s.title),
-        el("small", {}, s.tagline),
-      ),
-    ));
+function startNew(adventureId) {
+  const adv = getAdventure(adventureId);
+  const save = {
+    id: newId(),
+    adventureId,
+    nodeId: adv.start,
+    hp: adv.maxHp,
+    items: [],
+    visited: [],
+    steps: 0,
+    finished: false,
+    createdAt: Date.now(),
   };
-  refreshCards();
-
-  const nameInput = el("input", { class: "input", placeholder: "Wie heißt dein Held?", maxlength: "30", value: getSettings().kidName || "" });
-  const learningToggle = el("input", { type: "checkbox" });
-  const drawingPreview = el("div", { class: "drawing-preview" });
-  const drawingInput = el("input", {
-    type: "file", accept: "image/*", class: "file-input",
-    onchange: (e) => {
-      drawingFile = e.target.files[0] || null;
-      drawingPreview.replaceChildren();
-      if (drawingFile) {
-        const img = el("img", { alt: "Deine Helden-Zeichnung" });
-        img.src = URL.createObjectURL(drawingFile);
-        drawingPreview.append(img, el("small", {}, "Claude baut deine Zeichnung in die Geschichte ein! 🎨"));
-      }
-    },
-  });
-
-  const status = el("div", { class: "status-area" });
-  const startBtn = el("button", { class: "btn btn-big" }, "🎲 Los geht's!");
-
-  startBtn.addEventListener("click", async () => {
-    const heroName = nameInput.value.trim() || "Alex";
-    const scen = SCENARIOS.find((s) => s.id === selectedScenario);
-    let world = scen.world;
-    if (scen.id === "frei") {
-      const idea = customIdea.value.trim();
-      if (!idea) { status.replaceChildren(el("p", { class: "error" }, "Schreib kurz auf, worum dein Abenteuer gehen soll!")); return; }
-      world = `Vom Spieler gewünschte Welt (baue daraus ein rundes Abenteuer mit klarer Quest): ${idea}`;
-    }
-
-    startBtn.disabled = true;
-    status.replaceChildren(spinner("Die Welt wird erschaffen …"));
-
-    try {
-      const firstContent = [];
-      if (drawingFile) {
-        firstContent.push(await fileToImageBlock(drawingFile, 1024));
-      }
-      firstContent.push({
-        type: "text",
-        text: "Starte das Abenteuer: Stelle den Schauplatz und meinen Helden vor, gib mir die Start-Quest und die erste Entscheidung.",
-      });
-
-      const save = {
-        id: newId(),
-        scenarioId: scen.id,
-        title: `${scen.id === "frei" ? "Eigenes Abenteuer" : scen.title} – ${heroName}`,
-        heroName,
-        heroFromDrawing: !!drawingFile,
-        world,
-        learning: learningToggle.checked,
-        createdAt: Date.now(),
-        messages: [{ role: "user", content: firstContent }],
-        last: null,
-      };
-      putSave(save);
-      location.hash = `#/adventure/play/${save.id}`;
-    } catch (err) {
-      startBtn.disabled = false;
-      status.replaceChildren(el("p", { class: "error" }, friendlyError(err)));
-    }
-  });
-
-  container.replaceChildren(
-    el("section", { class: "panel" },
-      el("h2", {}, "✨ Neues Abenteuer"),
-      el("h3", {}, "1. Wähle deine Welt"),
-      scenarioGrid,
-      customIdea,
-      el("h3", {}, "2. Dein Held"),
-      nameInput,
-      el("label", { class: "upload-label" },
-        "Optional: Male deinen Helden auf Papier, mach ein Foto und lade es hoch —",
-        drawingInput,
-      ),
-      drawingPreview,
-      el("label", { class: "toggle-label" }, learningToggle, " Geheime Lernrätsel einbauen (Mathe, Logik, Englisch)"),
-      startBtn,
-      status,
-    ),
-  );
+  putSave(save);
+  location.hash = `#/adventure/play/${save.id}`;
 }
 
 // ---------- Spielen ----------
 
-async function renderPlay(container, saveId) {
+function renderPlay(container, saveId) {
   const save = getSave(saveId);
   if (!save) { location.hash = "#/adventure"; return; }
+  const adv = getAdventure(save.adventureId);
+  if (!adv) { location.hash = "#/adventure"; return; }
+
+  const nodeById = Object.fromEntries(adv.nodes.map((n) => [n.id, n]));
 
   const scene = el("div", { class: "scene" });
-  const log = el("div", { class: "story-log" });
+  const storyBox = el("div", { class: "story-log" });
   const actions = el("div", { class: "actions" });
   const hud = {
     hearts: el("div", { class: "hud-hearts" }),
-    location: el("div", { class: "hud-row" }),
-    quest: el("div", { class: "hud-quest" }),
     inventory: el("div", { class: "hud-inventory" }),
   };
 
   container.replaceChildren(
     el("div", { class: "game" },
-      el("div", { class: "game-main" }, scene, log, actions),
+      el("div", { class: "game-main" }, scene, storyBox, actions),
       el("aside", { class: "game-side" },
-        el("h3", {}, save.heroName),
-        hud.hearts, hud.location,
-        el("h4", {}, "🎯 Quest"), hud.quest,
-        el("h4", {}, "🎒 Rucksack"), hud.inventory,
+        el("h3", {}, adv.emoji + " " + adv.title),
+        hud.hearts,
+        el("h4", {}, "🎒 Rucksack"),
+        hud.inventory,
+        el("button", { class: "btn btn-ghost btn-small", style: "margin-top:14px", onclick: () => (location.hash = "#/adventure") }, "💾 Speichern & zurück"),
       ),
     ),
   );
 
-  async function appendStory(storyMd) {
-    const node = el("div", { class: "bubble bubble-story" });
-    node.innerHTML = await md(storyMd);
-    log.append(node);
-    scrollToBottom(log);
-  }
+  const has = (item) => save.items.includes(item);
 
-  function appendAction(text) {
-    log.append(el("div", { class: "bubble bubble-action" }, text));
-    scrollToBottom(log);
-  }
-
-  async function updateScene(svgText) {
-    if (!svgText) return;
-    const safe = await safeSvg(svgText);
-    if (safe) scene.innerHTML = safe;
-  }
-
-  function updateHud(state) {
-    if (!state) return;
-    const hp = Math.max(0, Math.min(state.hp ?? 5, 10));
-    const max = Math.max(hp, Math.min(state.max_hp ?? 5, 10));
-    hud.hearts.textContent = "❤️".repeat(hp) + "🤍".repeat(max - hp);
-    hud.location.textContent = "📍 " + (state.location || "Unbekannt");
-    hud.quest.textContent = state.quest || "—";
+  function updateHud() {
+    const hp = Math.max(0, save.hp);
+    hud.hearts.textContent = "❤️".repeat(hp) + "🤍".repeat(Math.max(0, adv.maxHp - hp));
+    const visible = save.items.filter((i) => adv.items[i]);
     hud.inventory.replaceChildren(
-      ...(state.inventory?.length
-        ? state.inventory.map((item) => el("span", { class: "chip" }, item))
-        : [el("small", {}, "noch leer")]),
+      ...(visible.length ? visible.map((i) => el("span", { class: "chip" }, adv.items[i])) : [el("small", {}, "noch leer")]),
     );
   }
 
-  function showError(message, retry) {
+  // {hat:item?dann:sonst} im Text auflösen
+  function renderText(text) {
+    return text.replace(/\{hat:(\w+)\?([^:}]*)(?::([^}]*))?\}/g, (_, item, then, otherwise) =>
+      has(item) ? then : (otherwise || ""),
+    );
+  }
+
+  function showStory(html, cls = "bubble-story") {
+    const node = el("div", { class: "bubble " + cls });
+    node.innerHTML = html;
+    storyBox.replaceChildren(node);
+    storyBox.scrollTop = 0;
+  }
+
+  function applyChoiceEffects(choice) {
+    for (const item of choice.take || []) if (!has(item)) save.items.push(item);
+    for (const item of choice.drop || []) save.items = save.items.filter((i) => i !== item);
+    if (choice.hp) changeHp(choice.hp);
+  }
+
+  function changeHp(delta) {
+    save.hp = Math.min(adv.maxHp, save.hp + delta);
+  }
+
+  function checkRescue() {
+    if (save.hp > 0) return false;
+    save.hp = adv.maxHp;
+    save.nodeId = adv.rescue.to;
+    putSave(save);
+    showStory(`<p>💫 ${renderText(adv.rescue.text)}</p>`, "bubble-story bubble-rescue");
     actions.replaceChildren(
-      el("p", { class: "error" }, message),
-      el("button", { class: "btn", onclick: retry }, "🔄 Nochmal versuchen"),
+      el("button", { class: "btn btn-big", onclick: () => goto(adv.rescue.to, false) }, "Weiter geht's!"),
     );
+    updateHud();
+    return true;
   }
 
-  function showGameOver() {
-    actions.replaceChildren(
-      el("div", { class: "game-over" },
-        el("h3", {}, "🎉 Quest geschafft! 🎉"),
-        el("p", {}, "Was für ein Abenteuer! Dein Spielstand bleibt gespeichert — oder du startest gleich das nächste."),
-        el("button", { class: "btn btn-big", onclick: () => (location.hash = "#/adventure/new") }, "✨ Neues Abenteuer"),
-      ),
-    );
+  function goto(nodeId, viaChoice = true) {
+    const node = nodeById[nodeId];
+    if (!node) { console.warn("Unbekannter Knoten:", nodeId); return; }
+    save.nodeId = nodeId;
+    if (viaChoice) save.steps = (save.steps || 0) + 1;
+
+    // Einmalige Knoten-Effekte (nur beim ersten Besuch)
+    if (!save.visited.includes(nodeId)) {
+      save.visited.push(nodeId);
+      if (node.effect?.hp) changeHp(node.effect.hp);
+      if (node.effectIf && has(node.effectIf.hat) && node.effectIf.hp) changeHp(node.effectIf.hp);
+    }
+
+    putSave(save);
+    renderNode(node);
   }
 
-  function showChoices(turn) {
-    actions.replaceChildren();
+  function renderNode(node) {
+    updateHud();
+    if (node.scene && adv.scenes[node.scene]) scene.innerHTML = adv.scenes[node.scene];
 
-    if (turn.game_over) { showGameOver(); return; }
+    if (checkRescue()) return;
 
-    if (turn.dice_check) {
-      const desc = el("p", { class: "dice-desc" }, "🎲 " + turn.dice_check);
+    // --- Würfelprobe ---
+    if (node.dice) {
+      showStory(`<p>🎲 ${escapeHtml(node.dice.text)}</p>`);
       const die = el("button", { class: "btn btn-dice" }, "🎲 Würfeln!");
       die.addEventListener("click", () => {
         die.disabled = true;
         let ticks = 0;
         const interval = setInterval(() => {
-          die.textContent = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][Math.floor(Math.random() * 6)];
-          if (++ticks >= 10) {
+          die.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
+          if (++ticks >= 12) {
             clearInterval(interval);
             const n = 1 + Math.floor(Math.random() * 6);
-            die.textContent = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][n - 1] + ` Du hast eine ${n} gewürfelt!`;
-            setTimeout(() => runTurn(`🎲 Gewürfelt: ${n}`), 900);
+            const success = n >= 4;
+            die.textContent = `${DICE_FACES[n - 1]}  Eine ${n}! ${success ? "Geschafft! 🎉" : "Oh nein …"}`;
+            setTimeout(() => {
+              if (success) {
+                goto(node.dice.win);
+              } else {
+                changeHp(-(node.dice.loseHp || 1));
+                putSave(save);
+                if (save.hp <= 0) { checkRescue(); return; }
+                showStory(`<p>${escapeHtml(node.dice.loseText || "Das ging schief!")}</p>`, "bubble-story bubble-ouch");
+                actions.replaceChildren(
+                  el("button", { class: "btn btn-big", onclick: () => goto(node.dice.lose) }, "Weiter"),
+                );
+                updateHud();
+              }
+            }, 1100);
           }
         }, 90);
       });
-      actions.append(desc, die);
+      actions.replaceChildren(die);
       return;
     }
 
-    const choiceWrap = el("div", { class: "choices" });
-    for (const c of turn.choices?.slice(0, 3) || []) {
-      choiceWrap.append(el("button", { class: "btn btn-choice", onclick: () => runTurn(c) }, c));
-    }
-    const input = el("input", { class: "input", placeholder: "… oder schreib selbst, was du tust!" , maxlength: "200"});
-    const send = el("button", { class: "btn", onclick: () => { const v = input.value.trim(); if (v) runTurn(v); } }, "➤");
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") send.click(); });
-    actions.append(choiceWrap, el("div", { class: "free-input" }, input, send));
-    input.focus();
-  }
+    // --- Rätsel ---
+    if (node.riddle) {
+      const r = node.riddle;
+      showStory(`<p>🧩 <strong>Rätsel:</strong> ${escapeHtml(r.question)}</p>`);
+      const feedback = el("p", { class: "error", style: "min-height:1.5em" });
 
-  async function runTurn(userText) {
-    if (userText) {
-      save.messages.push({ role: "user", content: userText });
-      appendAction(userText);
-    }
-    actions.replaceChildren(spinner("Der Erzähler schreibt …"));
+      const succeed = () => {
+        feedback.className = "success";
+        feedback.textContent = "✅ Richtig!";
+        setTimeout(() => goto(r.win), 700);
+      };
+      const fail = () => {
+        feedback.className = "error";
+        feedback.textContent = "❌ Hmm, das stimmt nicht. Tipp: " + r.hint;
+      };
 
-    try {
-      const { text } = await sendMessage({
-        system: buildSystemPrompt(save),
-        messages: save.messages,
-        outputFormat: GAME_FORMAT,
-        maxTokens: 16000,
-      });
-
-      save.messages.push({ role: "assistant", content: text });
-      const turn = parseTurn(text);
-
-      if (!turn) {
-        // Sollte mit Structured Outputs praktisch nie passieren — Text trotzdem zeigen.
-        await appendStory(text);
-        save.last = null;
-        putSave(save);
-        showChoices({ choices: [], dice_check: "", game_over: false });
-        return;
+      if (r.options) {
+        const wrap = el("div", { class: "choices" });
+        r.options.forEach((opt, i) => {
+          wrap.append(el("button", { class: "btn btn-choice", onclick: () => (i === r.answer ? succeed() : fail()) }, opt));
+        });
+        actions.replaceChildren(wrap, feedback);
+      } else {
+        const input = el("input", { class: "input", inputmode: "numeric", placeholder: "Deine Antwort …", maxlength: "20" });
+        const check = () => {
+          const v = input.value.trim().toLowerCase().replace(",", ".");
+          if (v === String(r.answer).toLowerCase()) succeed();
+          else { fail(); input.value = ""; input.focus(); }
+        };
+        const btn = el("button", { class: "btn", onclick: check }, "➤");
+        input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); check(); } });
+        actions.replaceChildren(el("div", { class: "free-input" }, input, btn), feedback);
+        input.focus();
       }
+      return;
+    }
 
-      save.last = turn;
+    // --- Happy End ---
+    if (node.end === "win") {
+      save.finished = true;
       putSave(save);
-      await updateScene(turn.scene_svg);
-      updateHud(turn.state);
-      await appendStory(turn.story);
-      showChoices(turn);
-    } catch (err) {
-      // Fehlgeschlagenen Zug zurücknehmen, damit der Verlauf konsistent bleibt
-      if (userText) save.messages.pop();
-      showError(friendlyError(err), () => runTurn(userText));
+      showStory(`<p>${renderText(node.text)}</p>`);
+      actions.replaceChildren(
+        el("div", { class: "game-over" },
+          el("h3", {}, "🏅 Abenteuer geschafft! 🏅"),
+          el("p", {}, `Du hast es in ${save.steps} Schritten geschafft — mit ${save.hp} von ${adv.maxHp} Herzen!`),
+          el("button", { class: "btn btn-big", onclick: () => startNew(adv.id) }, "🔁 Nochmal anders spielen"),
+          el("button", { class: "btn btn-ghost", onclick: () => (location.hash = "#/adventure") }, "Zur Abenteuer-Auswahl"),
+        ),
+      );
+      return;
     }
+
+    // --- Normaler Erzählknoten ---
+    showStory(`<p>${renderText(node.text)}</p>`);
+    const wrap = el("div", { class: "choices" });
+    for (const choice of node.choices || []) {
+      if ((choice.hideIf || []).some(has)) continue;
+      const locked = (choice.require || []).some((item) => !has(item));
+      if (locked) {
+        wrap.append(el("button", { class: "btn btn-choice btn-locked", onclick: () => {
+          const hint = el("small", { class: "lock-hint" }, " 🔒 " + (choice.lockHint || "Dafür fehlt dir noch etwas."));
+          if (!wrap.querySelector(".lock-hint")) wrap.append(hint);
+        } }, "🔒 " + choice.label));
+      } else {
+        wrap.append(el("button", { class: "btn btn-choice", onclick: () => {
+          applyChoiceEffects(choice);
+          goto(choice.to);
+        } }, choice.label));
+      }
+    }
+    actions.replaceChildren(wrap);
   }
 
-  // ----- Verlauf wiederherstellen -----
-  let firstMessage = true;
-  for (const msg of save.messages) {
-    if (msg.role === "user") {
-      if (firstMessage) { appendAction("🚀 Das Abenteuer beginnt …"); firstMessage = false; }
-      else appendAction(userTextOf(msg.content));
-    } else {
-      const turn = parseTurn(msg.content);
-      if (turn) await appendStory(turn.story);
-      else await appendStory(String(msg.content));
-    }
-  }
-
-  const lastMsg = save.messages[save.messages.length - 1];
-  if (lastMsg?.role === "user") {
-    // Frischer Spielstand (oder abgebrochener Zug): Antwort jetzt holen
-    runTurn(null);
-  } else if (save.last) {
-    await updateScene(save.last.scene_svg);
-    updateHud(save.last.state);
-    showChoices(save.last);
-  } else {
-    showChoices({ choices: [], dice_check: "", game_over: false });
-  }
+  // Aktuellen Knoten anzeigen (ohne Effekte erneut anzuwenden)
+  renderNode(nodeById[save.nodeId] || nodeById[adv.start]);
 }

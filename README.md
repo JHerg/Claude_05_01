@@ -1,70 +1,62 @@
 # 🏠 Familien-Studio
 
-Zwei Welten, eine App — komplett statisch, läuft direkt auf **GitHub Pages**:
+Zwei Welten, eine App — **komplett offline, ohne Anmeldung, ohne Kosten**.
+Läuft als statische Seite direkt auf **GitHub Pages** und funktioniert nach dem
+ersten Besuch dank Service Worker sogar ganz ohne Internet.
 
-- **🐉 Abenteuer-Maschine** — ein interaktives Text-Adventure für Kinder (ca. 10–12 Jahre).
-  Claude ist der Spielleiter: Herzen, Inventar, Quests, Würfelproben, selbst gemalte
-  SVG-Szenenbilder — und wer mag, lädt ein Foto seiner eigenen Helden-Zeichnung hoch,
-  die Claude in die Geschichte einbaut. Optional mit versteckten Lernrätseln
-  (Mathe, Logik, Englisch). Spielstände werden lokal gespeichert.
-- **🏠 Alltagshelfer** — fünf praktische Module:
-  **Brief-Versteher** (Amtspost fotografieren → Klartext + Antwortentwurf),
-  **Koch-Pilot** (Kühlschrankfoto → Rezepte oder Wochenplan + Einkaufsliste),
-  **Lern-Coach** (erklärt Hausaufgaben, statt sie zu lösen; Karteikarten & Quiz),
-  **Schreibwerkstatt** (Entschuldigungen, Kündigungen, Glückwünsche …),
-  **Planer** (Geburtstag, Urlaub, Packlisten — als abhakbare Checklisten).
+## 🐉 Abenteuer-Maschine
 
-Angetrieben von **Claude (claude-fable-5)** über die Anthropic-API — direkt aus dem
-Browser, ohne eigenen Server.
+Interaktive Text-Abenteuer für Kinder (ca. 10–12 Jahre) mit allem, was dazugehört:
+
+- **Zwei komplette Abenteuer**: *Drachenfeuer* (rette die gestohlenen Farben des
+  Königreichs — und heile den einsamen Schattendrachen) und *Sternenbasis 7*
+  (allein auf der Raumstation, mit Roboter B0B und einem hungrigen Glibberwesen).
+- **Echte Spielmechanik**: Herzen ❤️, Rucksack mit Gegenständen 🎒, animierte
+  Würfelproben 🎲, Mathe- und Logikrätsel 🧩 — und Entscheidungen, die wirklich
+  etwas ändern (die Startausrüstung öffnet z. B. später andere Wege).
+- **Handgemalte SVG-Szenenbilder** zu jedem Schauplatz.
+- **Kindgerecht**: Scheitern ist nie endgültig (bei 0 Herzen wirst du gerettet),
+  Konflikte werden mit Köpfchen und Freundlichkeit gelöst, jedes Abenteuer hat
+  ein Happy End.
+- **Spielstände** werden automatisch lokal gespeichert — mehrfach parallel spielbar.
+
+## 🏠 Alltagshelfer
+
+Fünf Helfer für jeden Tag:
+
+| Modul | Was es kann |
+|---|---|
+| 🧠 **Lern-Trainer** | Kopfrechnen in 3 Stufen (endlos generierte Aufgaben), 60-Sekunden-Einmaleins-Sprint, Englisch-Vokabeln (4 Sets) als Lernkarten & Quiz — mit lokaler Bestenliste |
+| 🍳 **Koch-Pilot** | 18 alltagstaugliche Familienrezepte mit Filter (vegetarisch, schnell, süß) und Zutaten-Suche; Wochenplan-Würfel (Mo–Fr) mit zusammengefasster, abhakbarer Einkaufsliste |
+| ✍️ **Schreibwerkstatt** | Ausfüll-Vorlagen: Schul-Entschuldigung, Kündigung, Reklamation, Glückwunsch, Einladung, Nachbarschafts-Nachricht — mit Kopieren-Knopf |
+| 🗓️ **Planer** | Checklisten-Vorlagen (Kindergeburtstag, Urlaub, Packliste, Schulstart, Umzug, Notfall-Infos) zum Abhaken, mit Fortschrittsbalken und eigenen Punkten |
+| 💰 **Taschengeld** | Ein Konto pro Kind: Einzahlen/Ausgeben mit Notiz, Verlauf, Sparziel mit Fortschrittsbalken |
 
 ## 🚀 Veröffentlichen auf GitHub Pages
 
-1. Dieses Repository auf GitHub öffnen → **Settings → Pages**.
-2. Unter „Build and deployment“: **Source = Deploy from a branch**,
-   Branch auswählen (z. B. `main`), Ordner `/ (root)`, speichern.
-3. Nach ~1 Minute ist die App unter `https://<benutzername>.github.io/<repo>/` erreichbar.
+1. Repository auf GitHub öffnen → **Settings → Pages**.
+2. „Build and deployment“: **Source = Deploy from a branch**, Branch wählen
+   (z. B. `main`), Ordner `/ (root)`, speichern.
+3. Nach ~1 Minute läuft die App unter `https://<benutzername>.github.io/<repo>/`.
 
-Es gibt keinen Build-Schritt — die Dateien werden direkt ausgeliefert.
+Kein Build-Schritt, keine Abhängigkeiten, keine API-Keys — die Dateien werden
+direkt ausgeliefert.
 
-## 🔑 Einrichtung (einmalig, im Eltern-Bereich ⚙️)
+## 🔒 Datenschutz
 
-1. API-Key bei [console.anthropic.com](https://console.anthropic.com) erstellen
-   (Account mit Guthaben nötig).
-2. In der App oben rechts **⚙️ Eltern-Bereich** öffnen und den Key eintragen.
-3. Optional: Tageslimit (Standard: 2 $/Tag), Antwort-Qualität (Effort) und eine
-   Eltern-PIN festlegen.
+Die App stellt **keinerlei Netzwerkanfragen** an irgendeinen Dienst. Spielstände,
+Checklisten, Bestenlisten und Taschengeld-Konten liegen ausschließlich im
+localStorage des Browsers. „Alle Daten löschen“ (ℹ️-Seite) entfernt alles.
 
-## 💰 Kosten
+## 📱 Als App installieren
 
-Die App ruft `claude-fable-5` direkt auf (10 $ / 50 $ pro Million Input-/Output-Token).
-Ein typischer Abenteuer-Spielzug oder eine Brief-Erklärung kostet wenige Cent.
-Die App schätzt die Tageskosten mit, zeigt sie oben rechts an und stoppt beim
-eingestellten Tageslimit. Prompt-Caching ist aktiviert und reduziert die Kosten
-längerer Abenteuer deutlich.
-
-## 🔒 Datenschutz & Sicherheit
-
-- **Der API-Key bleibt auf dem Gerät** (localStorage) und wird ausschließlich an
-  `api.anthropic.com` gesendet. Er liegt nie im Repository und auf keinem Server.
-- Spielstände, Verläufe und Einstellungen liegen nur im Browser. „Alle Daten löschen“
-  im Eltern-Bereich entfernt alles.
-- Eingaben und Fotos werden zur Verarbeitung an die Anthropic-API übertragen
-  (Anthropic speichert API-Daten gemäß seiner Richtlinien, derzeit 30 Tage für
-  dieses Modell). Keine sensiblen Dokumente hochladen, bei denen das nicht passt.
-- Die Abenteuer-Maschine erzwingt per System-Prompt altersgerechte Inhalte
-  (gewaltarm, freundlich, deutsch). Wie bei jedem KI-System gilt trotzdem:
-  am besten gemeinsam ausprobieren.
-- Hinweis Brief-Versteher: Orientierungshilfe, **keine Rechtsberatung**.
-
-⚠️ Die App ist für die **private Nutzung der eigenen Familie** gedacht. Wer die
-veröffentlichte Seite besucht, nutzt seinen *eigenen* Key — es gibt keinen geteilten
-Key. Trotzdem: Wer die URL nicht teilen will, kann das Repository privat lassen und
-die App lokal nutzen.
+Dank Web-App-Manifest lässt sich die Seite auf Handy/Tablet „zum Startbildschirm
+hinzufügen“ und verhält sich dann wie eine richtige App — auch im Flugmodus.
 
 ## 🛠 Lokal ausprobieren
 
 ```bash
-# im Repo-Verzeichnis (ein beliebiger statischer Server tut es):
+# beliebiger statischer Server, z. B.:
 python3 -m http.server 8080
 # dann http://localhost:8080 öffnen
 ```
@@ -73,12 +65,24 @@ python3 -m http.server 8080
 
 ```
 index.html        App-Hülle
+manifest.json     PWA-Manifest (installierbar)
+sw.js             Service Worker (offline-fähig)
 css/style.css     Styles (zwei Themes: Papier & Nachtblau)
-js/main.js        Router, Startseite, Eltern-Bereich
-js/api.js         Anthropic-API (SSE-Streaming, Bilder, Fehler)
-js/storage.js     localStorage: Einstellungen, Spielstände, Kosten
-js/ui.js          Markdown-/SVG-Rendering (sanitisiert), UI-Helfer
-js/adventure.js   Abenteuer-Maschine
+assets/icon.svg   App-Icon
+js/main.js        Router, Startseite, Info-Seite
+js/ui.js          DOM-Helfer
+js/storage.js     localStorage: Spielstände, Listen, Konten
+js/adventure.js   Spiel-Engine (Knoten, Würfel, Rätsel, HUD)
+js/adventures.js  Die Abenteuer-Inhalte inkl. SVG-Szenen
 js/hub.js         Alltagshelfer-Module
+js/data.js        Rezepte, Brief-Vorlagen, Checklisten, Vokabeln
 KONZEPT.md        Ausführliches Konzept
 ```
+
+## ✏️ Eigene Inhalte ergänzen
+
+- **Neue Rezepte / Vokabel-Sets / Checklisten**: einfach in `js/data.js` ergänzen —
+  das Format ist selbsterklärend.
+- **Neue Abenteuer**: in `js/adventures.js` ein weiteres Objekt nach dem Muster
+  der vorhandenen anlegen (Knoten mit `choices`, `dice`, `riddle`, `end`) und in
+  das `ADVENTURES`-Array eintragen. Die Engine übernimmt den Rest.

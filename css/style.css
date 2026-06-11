@@ -1,7 +1,7 @@
 /* Familien-Studio — gemeinsame Hülle mit zwei Themes:
    warmes Papier für Start & Alltagshelfer, Nachtblau für die Abenteuer-Maschine. */
 
-@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Nunito:ital,wght@0,400;0,700;1,400&display=swap");
+/* Keine Web-Fonts — die App soll komplett offline funktionieren. */
 
 :root {
   --paper: #faf5ec;
@@ -15,8 +15,8 @@
   --muted: #847d72;
   --radius: 16px;
   --shadow: 0 2px 10px rgba(60, 45, 30, 0.08);
-  --font-display: "Baloo 2", "Comic Sans MS", system-ui, sans-serif;
-  --font-body: "Nunito", system-ui, sans-serif;
+  --font-display: ui-rounded, "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: system-ui, "Segoe UI", sans-serif;
 }
 
 body.theme-adventure {
@@ -384,3 +384,84 @@ li.checkable.checked { text-decoration: line-through; color: var(--muted); }
 
 .cost-history { display: flex; flex-direction: column; gap: 4px; max-width: 280px; }
 .cost-row { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line); padding: 2px 0; }
+
+/* ---------- Tabs & Filter-Chips ---------- */
+
+.tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; align-items: center; }
+.tab {
+  font-family: var(--font-display);
+  background: var(--card);
+  color: var(--ink);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ---------- Quiz & Lernkarten ---------- */
+
+.quiz-question { font-family: var(--font-display); font-size: 2.2rem; text-align: center; margin: 14px 0; }
+.quiz-feedback { min-height: 1.6em; font-weight: 700; text-align: center; }
+.quiz-timer { text-align: center; font-weight: 700; color: var(--accent-dark); min-height: 1.2em; margin: 0; }
+.quiz-big { font-family: var(--font-display); font-size: 1.6rem; }
+.input-quiz { font-size: 1.5rem; text-align: center; }
+.center { text-align: center; }
+
+.flashcard {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 170px;
+  background: var(--card);
+  border: 3px solid var(--accent);
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  font-family: var(--font-body);
+  color: inherit;
+  margin: 10px 0;
+}
+.flashcard strong { font-family: var(--font-display); font-size: 1.9rem; }
+.flashcard:active { transform: scale(0.98); }
+
+/* ---------- Listen, Pläne, Fortschritt ---------- */
+
+.plan-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.plan-table td { padding: 7px 10px; border-bottom: 1px dashed var(--line); }
+
+.shoplist { list-style: none; padding: 0; margin: 8px 0; }
+
+.progress {
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 26px;
+  margin: 10px 0;
+}
+.progress-fill {
+  background: var(--green);
+  color: #fff;
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700;
+  min-width: 2%;
+  transition: width 0.3s;
+}
+
+/* ---------- Abenteuer-Extras ---------- */
+
+.scenario-grid-big .scenario-card { padding: 20px; }
+.btn-locked { opacity: 0.65; border-style: dashed; }
+.lock-hint { display: block; color: var(--muted); padding: 4px 2px; }
+.bubble-rescue { border-color: var(--accent); border-width: 2px; }
+.bubble-ouch { border-color: #b3463a; border-width: 2px; }
+
+/* ---------- Schreibwerkstatt & Geld ---------- */
+
+.output-text { font-family: ui-monospace, "Consolas", monospace; font-size: 0.95rem; white-space: pre-wrap; }
+.money-balance { font-family: var(--font-display); font-size: 2.4rem; margin: 6px 0; color: var(--green); }
+.money-balance.error { color: #b3463a; }
+.money-card { width: 100%; }
+
+.hero-small { padding: 4px 0 0; }
+.hero-small h2 { margin-bottom: 0.2em; }

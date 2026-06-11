@@ -1,126 +1,89 @@
 # Familien-Studio — Konzept
 
-Eine „familientaugliche" Web-App für **GitHub Pages**: komplett statisch, ohne Server,
-ohne Build-Schritt. Eine gemeinsame Hülle (Startseite, Eltern-Bereich, Kostenanzeige)
-mit **zwei Welten**:
+Eine familientaugliche Web-App für **GitHub Pages**: komplett statisch, **komplett
+offline**, ohne Anmeldung, ohne API, ohne laufende Kosten. Eine gemeinsame Hülle
+mit zwei Welten:
 
-1. **🐉 Abenteuer-Maschine** — interaktives Text-Adventure für Kinder (ca. 10–12 Jahre)
+1. **🐉 Abenteuer-Maschine** — interaktive Text-Abenteuer für Kinder (ca. 10–12 Jahre)
 2. **🏠 Alltagshelfer** — fünf praktische Module für den Familienalltag
 
-Angetrieben von **Claude Fable 5** (`claude-fable-5`), direkt aus dem Browser
-(„BYOK": der Nutzer hinterlegt seinen eigenen API-Key, der das Gerät nur Richtung
-`api.anthropic.com` verlässt).
+## Der Grundgedanke: KI zur Bauzeit statt zur Laufzeit
 
----
+Die erste Konzept-Version band die Anthropic-API zur Laufzeit an (Claude als
+Spielleiter, Brief-Versteher per Foto). Das hätte aber ein API-Guthaben und
+laufende Kosten bedeutet. Deshalb der Pivot:
 
-## 1. Was ist das Besondere an Claude 5 (Fable 5)?
+> **Die KI (Claude) hat die Inhalte einmalig beim Entwickeln erzeugt** —
+> verzweigte Abenteuer-Geschichten, Rezepte, Brief-Vorlagen, Checklisten,
+> Vokabel-Sets und die SVG-Illustrationen. Sie sind fest in die App eingebaut.
+> Zur Laufzeit wird **keinerlei Dienst** mehr aufgerufen.
 
-Claude Fable 5 ist das erste Modell der neuen **Mythos-Klasse** oberhalb von Claude Opus:
+Was dadurch wegfiel: freie Texteingaben ans „lebende" Modell (z. B. Fotos von
+Behördenbriefen erklären lassen). Was dadurch gewonnen wurde: null Kosten,
+null Datenschutzfragen, funktioniert im Flugmodus, beliebig viele Nutzer.
 
-| Eigenschaft | Wert / Verhalten |
+## Welt 1: Abenteuer-Maschine 🐉
+
+Eine Entscheidungsbaum-Engine mit echter Spielmechanik:
+
+- **Knoten-Typen**: Erzählung mit Auswahlmöglichkeiten, Würfelprobe (4–6 =
+  Erfolg, sonst −1 Herz), Rätsel (Mathe/Logik, mit Hinweis bei Fehlversuch),
+  Happy End.
+- **Zustand**: Herzen (Start 5), Inventar, besuchte Knoten, Schrittzähler.
+  Entscheidungen haben Folgen: Die Startausrüstung (Seil/Laterne/Honigbrot)
+  öffnet später jeweils andere Wege; Gegenstände aus einem Handlungsstrang
+  werden in einem anderen gebraucht (z. B. der Glitzerstein für die Krähe).
+- **Kindgerecht by design**: Bei 0 Herzen greift eine freundliche
+  Rettungs-Szene (kein Game Over), Konflikte werden durch Zuhören und
+  Cleverness gelöst, jedes Abenteuer endet positiv.
+- **Inhalte**: Zwei vollständige Abenteuer („Drachenfeuer“ ~30 Knoten mit
+  Hub-Struktur und drei Handlungssträngen, „Sternenbasis 7“ ~18 Knoten mit
+  zwei verschränkten Aufgaben), je 5–6 handgeschriebene SVG-Szenenbilder.
+- **Spielstände** in localStorage, mehrere parallel, jederzeit fortsetzbar.
+
+Neue Abenteuer = ein weiteres Datenobjekt in `js/adventures.js` — die Engine
+(`js/adventure.js`) bleibt unverändert. Ideal, um später mit Claude (z. B. in
+Claude Code) weitere Geschichten zu generieren und einzuchecken: KI-Kosten
+fallen nur einmalig beim Autor an, nie beim Nutzer.
+
+## Welt 2: Alltagshelfer 🏠
+
+| Modul | Offline-Mechanik |
 |---|---|
-| Modell-ID | `claude-fable-5` |
-| Kontextfenster | 1 Million Token (Standard = Maximum) |
-| Max. Output | 128K Token pro Request (Streaming nötig) |
-| Preis | $10 / $50 pro 1M Token (Input/Output) |
-| Thinking | Immer an (adaptiv) — `thinking`-Parameter weglassen; `disabled`/`budget_tokens` geben 400 |
-| Reasoning-Tiefe | `output_config.effort`: `low` → `xhigh` → `max` |
-| Protected Thinking | Roher Gedankengang wird nie ausgegeben; Zusammenfassungen via `display: "summarized"` |
-| Tokenizer | Neu — gleicher Inhalt ≈ 30 % mehr Token als bei Opus |
-| Sampling | `temperature`/`top_p`/`top_k` entfernt — Steuerung per Prompt |
-| Prefill | Nicht unterstützt → Structured Outputs (`output_config.format`) |
-| Safety | `stop_reason: "refusal"` möglich; server-seitige Fallbacks auf Opus 4.8 (Beta) |
-| Datenhaltung | 30-Tage-Retention erforderlich (kein ZDR) |
-| Stärken | Langzeit-Kohärenz, agentisches Arbeiten, Vision, kreatives Schreiben, Memory |
+| 🧠 Lern-Trainer | Kopfrechnen-Aufgaben werden **algorithmisch generiert** (3 Stufen, unendlicher Vorrat), Einmaleins-Sprint mit 60-s-Timer, 4 Vokabel-Sets (je 16 Wörter) als Lernkarten + Multiple-Choice-Quiz; Bestenliste lokal |
+| 🍳 Koch-Pilot | 18 kuratierte Familienrezepte mit Tags & Zutaten-Suche; Wochenplan-Generator zieht 5 abwechslungsreiche Gerichte und aggregiert die Zutaten zur abhakbaren Einkaufsliste |
+| ✍️ Schreibwerkstatt | 6 sorgfältig formulierte Vorlagen-Generatoren (Entschuldigung, Kündigung inkl. Formalien, Reklamation mit Fristsetzung, Glückwunsch, Einladung, Nachbarschafts-Nachricht) — Felder ausfüllen, Text kopieren |
+| 🗓️ Planer | 6 Checklisten-Vorlagen (Geburtstag, Urlaub, Packliste, Schulstart, Umzug, Notfall-Infos) werden zu persistenten, abhakbaren Listen mit Fortschrittsbalken und eigenen Zusatzpunkten |
+| 💰 Taschengeld | Konto pro Kind: Buchungen mit Notiz, Verlauf, Sparziel mit Fortschrittsanzeige — reine Lokalrechnung |
 
-**Genau diese Stärken nutzt die App:** lange, konsistente Spiel-Kampagnen
-(Langzeit-Kohärenz + 1M Kontext), garantiert parsebarer Spielzustand
-(Structured Outputs), Brief-/Hausaufgaben-Fotos (Vision), kindgerechtes
-kreatives Erzählen und kontrollierbare Kosten (Effort + Prompt Caching).
-
----
-
-## 2. Welt 1: Die Abenteuer-Maschine 🐉
-
-Claude ist Spielleiter eines Text-Adventures — als echtes Spiel, nicht als Chat:
-
-- **6 Szenarien**: Drachenfeuer (Fantasy), Sternenbasis 7 (Sci-Fi), Detektivbüro
-  Blitz (Krimi), Die vergessene Insel (Schatzsuche), Pokal der Legenden
-  (Fußball + Magie) — und „Eigene Idee", bei der das Kind die Welt selbst bestimmt.
-- **Spiel-HUD statt Chatfenster**: Jeder Spielzug kommt per Structured Output als
-  JSON (Erzähltext, 3 Auswahlmöglichkeiten, Herzen, Inventar, Quest, Ort) —
-  die App rendert daraus Herzen ❤️, Inventar-Chips 🎒 und das Quest-Ziel 🎯.
-- **Claude malt die Szenen selbst**: Zu neuen Schauplätzen liefert das Modell
-  eine Inline-SVG-Illustration (Comic-Stil, 400×240), die sanitisiert
-  (DOMPurify, SVG-Profil) angezeigt wird. Kein Bildgenerator nötig.
-- **Würfelproben**: Bei riskanten Aktionen fordert Claude eine Probe an; die App
-  zeigt einen animierten Würfel, das Ergebnis fließt zurück in die Geschichte.
-- **Eigene Zeichnung als Held** (Vision): Foto der selbst gemalten Figur hochladen —
-  Claude beschreibt den Helden im Spiel genau so, wie er auf dem Bild aussieht.
-- **Versteckte Lernrätsel** (optional): ca. jede 3.–4. Runde ein Zahlenschloss,
-  ein Geheimcode oder ein Englisch-Zauberspruch.
-- **Kindersicherheit per System-Prompt**: altersgerecht, gewaltarm, kein Horror,
-  Scheitern ohne endgültiges Game Over, Happy-End-Pflicht für den Questabschluss.
-- **Spielstände** in localStorage (bis 12 Slots), wochenlange Kampagnen möglich;
-  der Nachrichtenverlauf wird bei Bedarf gekürzt (erste Nachrichten + letzte 60 Züge).
-
-## 3. Welt 2: Der Alltagshelfer 🏠
-
-Fünf geführte Module (Formular → Ergebnis → Nachfragen-Chat), Sitzung pro Modul
-wird lokal gemerkt:
-
-| Modul | Was es tut |
-|---|---|
-| 📨 **Brief-Versteher** | Amtspost/Versicherung/Schulbrief fotografieren → feste Struktur: „Worum geht es / Das musst du tun / Fristen & Kosten / Gut zu wissen" + Antwortentwurf auf Wunsch. Mit Hinweis: keine Rechtsberatung. |
-| 🍳 **Koch-Pilot** | Kühlschrankfoto oder Zutatenliste → 3 Rezepte oder Wochenplan (Mo–Fr) mit nach Abteilungen gruppierter, **abhakbarer** Einkaufsliste. |
-| 🧠 **Lern-Coach** | Hausaufgabe fotografieren → erklärt Schritt für Schritt, **ohne die Lösung zu verraten** (Leitfragen-Didaktik); alternativ Karteikarten oder Quiz-Modus mit Punktezählung. |
-| ✍️ **Schreibwerkstatt** | Entschuldigung, Kündigung, Reklamation, Glückwunsch, Einladung — versandfertig, mit Formalien (Fristen, Einschreiben-Hinweis) und Tonfall-Wahl. |
-| 🗓️ **Planer** | Kindergeburtstag, Urlaub, Packliste, Umzug → chronologische, abhakbare Checklisten mit Kostenschätzung. |
-
-## 4. Gemeinsame Hülle
-
-- **Eltern-Bereich** (optional PIN-geschützt): API-Key, Effort-Stufe
-  (Tempo/Kosten ↔ Gründlichkeit), **Tageslimit in $** (App pausiert bei
-  Erreichen), Kostenhistorie der letzten 7 Tage, „Alle Daten löschen".
-- **Live-Kostenschätzung** aus den `usage`-Feldern jeder Antwort
-  (inkl. Cache-Read/Write) als Badge in der Kopfzeile.
-- **Prompt Caching** über top-level `cache_control` — wachsende Spielverläufe
-  werden größtenteils aus dem Cache gelesen (~0,1× Preis).
-- **Fehler-UX**: verständliche deutsche Meldungen für 401/429/529,
-  Tageslimit und `refusal`; fehlgeschlagene Züge werden zurückgerollt
-  und sind per Knopf wiederholbar.
-
----
-
-## 5. Technik
+## Technik
 
 | Baustein | Entscheidung | Warum |
 |---|---|---|
-| Build | **Keiner** — pures HTML + ES-Module | GitHub Pages „Deploy from branch" genügt; kein Tooling für die Familie |
-| API | `fetch` + SSE-Parser direkt gegen `/v1/messages` | Kein SDK-Download nötig; Header `anthropic-dangerous-direct-browser-access: true` erlaubt Browser-Calls |
-| Modell | `claude-fable-5`, Streaming, `max_tokens: 16000` | Fable-5-Regeln beachtet: kein `thinking`-Param, kein Sampling, Effort via `output_config` |
-| Spielzustand | Structured Outputs (`output_config.format`, JSON-Schema) | Garantiert parsebares JSON für das HUD |
-| Markdown/SVG | marked + DOMPurify (CDN, mit Fallback) | XSS-sicheres Rendering, SVG-Profil für Szenenbilder |
-| Persistenz | localStorage | Key, Spielstände, Hub-Sitzungen, Kosten — alles lokal |
-| Deployment | GitHub Pages, `.nojekyll` | Statisch, relative Pfade, Hash-Routing |
+| Build | Keiner — pures HTML/CSS + ES-Module | GitHub Pages „Deploy from branch" genügt |
+| Bibliotheken | **Keine** (auch keine CDN-Fonts) | Offline-Garantie, keine Abhängigkeiten |
+| Offline | Service Worker (Cache-first) + Web-App-Manifest | Nach dem ersten Besuch voll offline; auf Handy/Tablet installierbar |
+| Persistenz | localStorage | Spielstände, Listen, Konten, Bestenlisten |
+| Routing | Hash-Router | Funktioniert auf Pages ohne Server-Konfiguration |
+| Sicherheit | Keine Netzwerkanfragen, keine Nutzereingaben an Dritte | Es gibt schlicht nichts, das Daten abfließen lassen könnte |
 
 ### Dateien
 
 ```
-index.html        App-Hülle
-css/style.css     Zwei Themes (Papier / Nachtblau)
-js/main.js        Router, Startseite, Eltern-Bereich
-js/api.js         Anthropic-API: SSE-Streaming, Bild-Blöcke, Fehler, Kosten
-js/storage.js     Einstellungen, Spielstände, Sitzungen, Tageskosten
-js/ui.js          md()/safeSvg() sanitisiert, DOM-Helfer
-js/adventure.js   Abenteuer-Maschine (Szenarien, System-Prompt, HUD, Würfel)
-js/hub.js         Alltagshelfer (5 Module, generischer Runner)
+index.html / manifest.json / sw.js / assets/icon.svg
+css/style.css                  zwei Themes (Papier & Nachtblau)
+js/main.js                     Router, Start, Info-Seite
+js/adventure.js                Spiel-Engine
+js/adventures.js               Abenteuer-Inhalte + SVG-Szenen
+js/hub.js                      Alltagshelfer-Module
+js/data.js                     Rezepte, Briefe, Checklisten, Vokabeln
+js/storage.js / js/ui.js       Persistenz & DOM-Helfer
 ```
 
-## 6. Mögliche Ausbaustufen
+## Mögliche Ausbaustufen
 
-- **Vorlesen**: `speechSynthesis` für die Abenteuer-Texte (komplett offline im Browser).
-- **Mehrere Kinder-Profile** mit eigenen Spielständen.
-- **Teilen ohne Key**: Abenteuer-Protokoll als schön formatierte HTML-Seite exportieren.
-- **PWA**: Manifest + Service Worker, damit die App wie eine echte App installierbar ist.
-- **Server-seitiger Fallback** auf `claude-opus-4-8` bei `refusal` (Beta-Header).
+- **Mehr Abenteuer** (mit Claude zur Bauzeit generieren, als Daten einchecken).
+- **Vorlesen** per `speechSynthesis` (komplett offline im Browser).
+- **Mehr Vokabel-Sets / Rezepte** — `js/data.js` ist bewusst leicht erweiterbar.
+- **Profile** für mehrere Kinder (getrennte Bestenlisten/Spielstände).
+- **Export/Import** aller Daten als JSON-Datei (Gerätewechsel).

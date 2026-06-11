@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Familien-Studio — Abenteuer &amp; Alltagshelfer</title>
-  <meta name="description" content="Abenteuer-Maschine und Alltagshelfer für die ganze Familie — angetrieben von Claude.">
+  <title>Familien-Studio — Abenteuer &amp; Alltagshelfer (offline)</title>
+  <meta name="description" content="Abenteuer-Maschine und Alltagshelfer für die ganze Familie — komplett offline, ohne Kosten.">
+  <meta name="theme-color" content="#e2725b">
+  <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🏠</text></svg>">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
 </head>
 <body>
   <header id="topbar">
     <button id="btn-home" class="icon-btn" title="Zur Startseite">🏠</button>
     <h1 id="topbar-title">Familien-Studio</h1>
-    <span id="cost-badge" title="Heutige Kosten (geschätzt)"></span>
-    <button id="btn-settings" class="icon-btn" title="Eltern-Bereich / Einstellungen">⚙️</button>
+    <button id="btn-settings" class="icon-btn" title="Info &amp; Daten">ℹ️</button>
   </header>
 
   <main id="app">
@@ -22,8 +23,8 @@
 
   <footer id="appfooter">
     <small>
-      Läuft komplett in deinem Browser · Dein API-Key und alle Spielstände bleiben auf diesem Gerät ·
-      Anfragen gehen direkt an die Anthropic-API
+      Läuft komplett offline in deinem Browser · Keine Anmeldung, keine Kosten ·
+      Alle Daten bleiben auf diesem Gerät
     </small>
   </footer>
 
