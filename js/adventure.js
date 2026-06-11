@@ -5,6 +5,9 @@
 import { ADVENTURES, getAdventure } from "./adventures.js";
 import { listSaves, getSave, putSave, deleteSave, newId, getSettings, setSettings } from "./storage.js";
 import { el, escapeHtml, sfx, setSoundOn, isSoundOn, canSpeak, speak, stopSpeak, typewriter, confetti } from "./ui.js";
+import * as detective from "./detective.js";
+import { CASES } from "./cases.js";
+import { getModuleState } from "./storage.js";
 
 const DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
@@ -12,6 +15,7 @@ export function route(container, parts) {
   document.body.classList.add("theme-adventure");
   stopSpeak();
   setSoundOn(getSettings().sound !== false);
+  if (parts[0] === "faelle") return detective.route(container);
   if (parts.length === 0) return renderHome(container);
   if (parts[0] === "play" && parts[1]) return renderPlay(container, parts[1]);
   location.hash = "#/adventure";
@@ -43,6 +47,19 @@ function renderHome(container) {
       ),
     );
   }
+  // Fall-Archiv: Detektiv-Fälle mit zufälligem Täter (eigener Modus)
+  const archiv = getModuleState("fallarchiv", { records: {}, active: null });
+  const solvedCases = CASES.filter((c) => archiv.records[c.id]).length;
+  const totalStars = CASES.reduce((n, c) => n + (archiv.records[c.id] || 0), 0);
+  grid.append(
+    el("button", { class: "scenario-card scenario-card-archiv", onclick: () => { sfx("click"); location.hash = "#/adventure/faelle"; } },
+      el("span", { class: "scenario-emoji" }, "🗂️"),
+      el("strong", {}, "Fall-Archiv (Detektivbüro Blitz)"),
+      el("small", {}, `${CASES.length} Fälle — und der Täter wird jedes Mal neu ausgelost! Mit Alibi-Checks, Fehlanklage-Risiko und Sterne-Wertung.`),
+      el("small", { class: "stars" }, solvedCases ? `★ ${totalStars}/${CASES.length * 3} Sterne · ${solvedCases}/${CASES.length} Fälle gelöst${archiv.active ? " · 🔍 Ermittlung läuft!" : ""}` : (archiv.active ? "🔍 Ermittlung läuft!" : "☆ Noch kein Fall gelöst")),
+      el("span", { class: "world-cta" }, archiv.active ? "Weiterermitteln ➤" : "Zum Archiv ➤"),
+    ),
+  );
   container.append(el("h3", {}, "Abenteuer"), grid);
 
   const saves = listSaves();

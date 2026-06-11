@@ -31,6 +31,12 @@ Interaktive Text-Abenteuer für Kinder (ca. 10–12 Jahre) mit allem, was dazuge
   Konflikte werden mit Köpfchen und Freundlichkeit gelöst, jedes Abenteuer hat
   ein Happy End.
 - **Spielstände** werden automatisch lokal gespeichert — mehrfach parallel spielbar.
+- **🗂️ Fall-Archiv**: 3 Detektiv-Fälle, bei denen der **Täter jedes Mal neu
+  ausgelost** wird — die Spuren (Haar, Schuhabdruck, Händigkeit, verräterische
+  Spur) passen sich an. Zwei Lösungswege: Indizien mit den Steckbriefen
+  kombinieren oder Alibis platzen lassen (max. 2 Checks). Fehlanklagen kosten
+  Herzen, bei drei Fehlern mischt der Fall sich neu. Sterne-Wertung für
+  besonders effiziente Ermittler.
 
 ## 🏠 Alltagshelfer
 

@@ -553,3 +553,11 @@ body.theme-adventure .btn-secret { border-color: #b89af0; }
   margin: 8px 0;
 }
 .hint-box.hint-final { border-left-color: var(--green); background: rgba(83, 192, 106, 0.12); }
+
+/* ---------- Fall-Archiv ---------- */
+
+.scenario-card-archiv { border-style: dashed; border-color: var(--accent); }
+.stars { color: var(--accent-dark); font-weight: 700; letter-spacing: 2px; }
+body.theme-adventure .stars { color: #f4d35e; }
+.ort-done { opacity: 0.72; border-style: dashed; }
+.btn-danger.btn { color: #fff; }
