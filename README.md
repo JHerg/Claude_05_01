@@ -22,6 +22,10 @@ Interaktive Text-Abenteuer für Kinder (ca. 10–12 Jahre) mit allem, was dazuge
 - **Vorlesen** 🔊 per Browser-Sprachausgabe (offline), **Soundeffekte** 🔔
   (synthetisch per WebAudio, abschaltbar), **Erzähl-Animation** und **Logbuch** 📖
   mit der bisherigen Geschichte.
+- **Stufenweise Hilfe** 💡: In jeder Szene gibt der „Tipp?“-Knopf erst einen
+  vagen Hinweis, auf Wunsch konkretere — und verrät zur Not den richtigen
+  Schritt bzw. die Rätsel-Lösung. Nach Fehlversuchen pulsiert er sanft; der
+  Tipp-Fortschritt wird pro Szene gespeichert.
 - **Handgemalte SVG-Szenenbilder** zu jedem Schauplatz.
 - **Kindgerecht**: Scheitern ist nie endgültig (bei 0 Herzen wirst du gerettet),
   Konflikte werden mit Köpfchen und Freundlichkeit gelöst, jedes Abenteuer hat

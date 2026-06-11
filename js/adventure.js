@@ -146,7 +146,11 @@ function renderPlay(container, saveId) {
   const logBtn = el("button", { class: "tab tool-btn", title: "Bisherige Geschichte" }, "📖 Logbuch");
   logBtn.addEventListener("click", () => showLog());
 
-  const toolbar = el("div", { class: "tab-bar game-toolbar" }, readBtn, soundBtn, logBtn);
+  const helpBtn = el("button", { class: "tab tool-btn", title: "Stufenweise Hilfe für diese Szene" }, "💡 Hilfe");
+  helpBtn.addEventListener("click", () => showHints());
+
+  const toolbar = el("div", { class: "tab-bar game-toolbar" }, readBtn, soundBtn, logBtn, helpBtn);
+  let currentNode = null;
 
   container.replaceChildren(
     el("div", { class: "game" },
@@ -212,6 +216,84 @@ function renderPlay(container, saveId) {
     document.body.append(overlay);
   }
 
+  // ----- Stufenweise Hilfe -----
+
+  /** Tipps für den aktuellen Knoten, von vage bis „der richtige Schritt“. */
+  function nodeHints(node) {
+    const hints = [];
+    if (node.hints) {
+      for (const h of node.hints) hints.push(renderText(h));
+    }
+    if (node.riddle) {
+      hints.push(escapeHtml(node.riddle.hint));
+      if (node.riddle.hint2) hints.push(escapeHtml(node.riddle.hint2));
+      const answer = node.riddle.options ? node.riddle.options[node.riddle.answer] : String(node.riddle.answer);
+      hints.push(`Die Lösung ist: <strong>${escapeHtml(answer)}</strong>`);
+    } else if (!node.hints) {
+      if (node.dice) {
+        hints.push("Hier entscheidet das Würfelglück — bei 4, 5 oder 6 klappt es. Und selbst wenn nicht: Es geht immer weiter, höchstens ein Herz ärmer.");
+      } else {
+        const lockedChoices = (node.choices || []).filter(
+          (c) => (c.require || []).some((i) => !has(i)) && !(c.hideIf || []).some(has),
+        );
+        if (lockedChoices.length) {
+          hints.push("Eine Tür ist hier noch zu (🔒). Irgendwo auf deinem Weg findest du, was dafür fehlt — schau dich an Orten um, an denen du noch nicht warst.");
+          hints.push(lockedChoices.map((c) => "🔒 " + escapeHtml(c.lockHint || c.label)).join("<br>"));
+        } else if (node.choices?.length) {
+          hints.push("Hier gibt es keinen falschen Weg — folge deinem Bauchgefühl. Du kannst nichts kaputt machen, und Wiederholen ist jederzeit erlaubt.");
+        }
+      }
+    }
+    return hints;
+  }
+
+  function showHints() {
+    const node = currentNode;
+    if (!node) return;
+    const hints = nodeHints(node);
+    if (!hints.length) return;
+    save.hintLevels = save.hintLevels || {};
+    let level = Math.max(1, Math.min(save.hintLevels[node.id] || 1, hints.length));
+
+    const body = el("div", { class: "logbook" });
+    const moreBtn = el("button", { class: "btn" });
+    const note = el("p", { class: "muted center" });
+
+    const draw = () => {
+      save.hintLevels[node.id] = level;
+      putSave(save);
+      body.replaceChildren(...hints.slice(0, level).map((h, i) => {
+        const box = el("div", { class: "hint-box" + (i === hints.length - 1 ? " hint-final" : "") });
+        box.innerHTML = `<strong>${i === hints.length - 1 ? "🎯 Der richtige Schritt" : "💡 Tipp " + (i + 1)}:</strong> ${h}`;
+        return box;
+      }));
+      if (level < hints.length) {
+        moreBtn.textContent = level + 1 === hints.length ? "🎯 Verrat mir den richtigen Schritt" : "💡 Noch ein Tipp";
+        moreBtn.style.display = "";
+        note.textContent = "";
+      } else {
+        moreBtn.style.display = "none";
+        note.textContent = hints.length > 1 ? "Mehr Tipps gibt es hier nicht — du schaffst das!" : "";
+      }
+    };
+    moreBtn.addEventListener("click", () => { level++; sfx("click"); draw(); });
+
+    const overlay = el("div", { class: "overlay", onclick: (e) => { if (e.target === overlay) overlay.remove(); } },
+      el("div", { class: "overlay-card" },
+        el("h3", {}, "💡 Hilfe"),
+        body, moreBtn, note,
+        el("button", { class: "btn btn-ghost", style: "margin-left:8px", onclick: () => overlay.remove() }, "Alleine weiterprobieren"),
+      ),
+    );
+    document.body.append(overlay);
+    draw();
+  }
+
+  function hintButton() {
+    if (!currentNode || !nodeHints(currentNode).length) return null;
+    return el("button", { class: "btn btn-ghost btn-small btn-hint", onclick: showHints }, "💡 Tipp?");
+  }
+
   function applyChoiceEffects(choice) {
     let gotItem = false;
     for (const item of choice.take || []) if (!has(item)) { save.items.push(item); if (adv.items[item]) gotItem = true; }
@@ -258,6 +340,7 @@ function renderPlay(container, saveId) {
   }
 
   function renderNode(node) {
+    currentNode = node;
     updateHud();
     if (node.scene && adv.scenes[node.scene]) scene.innerHTML = adv.scenes[node.scene];
 
@@ -298,7 +381,7 @@ function renderPlay(container, saveId) {
           }
         }, 90);
       });
-      actions.replaceChildren(die);
+      actions.replaceChildren(...[die, hintButton()].filter(Boolean));
       return;
     }
 
@@ -316,8 +399,10 @@ function renderPlay(container, saveId) {
       };
       const fail = () => {
         feedback.className = "error";
-        feedback.textContent = "❌ Hmm, das stimmt nicht. Tipp: " + r.hint;
+        feedback.textContent = "❌ Hmm, das stimmt nicht — probier es nochmal!";
         sfx("fail");
+        // Nach einem Fehlversuch auf die Hilfe aufmerksam machen
+        actions.querySelector(".btn-hint")?.classList.add("pulse");
       };
 
       if (r.options) {
@@ -325,7 +410,7 @@ function renderPlay(container, saveId) {
         r.options.forEach((opt, i) => {
           wrap.append(el("button", { class: "btn btn-choice", onclick: () => (i === r.answer ? succeed() : fail()) }, opt));
         });
-        actions.replaceChildren(wrap, feedback);
+        actions.replaceChildren(...[wrap, feedback, hintButton()].filter(Boolean));
       } else {
         const input = el("input", { class: "input", inputmode: "numeric", placeholder: "Deine Antwort …", maxlength: "20" });
         const check = () => {
@@ -335,7 +420,7 @@ function renderPlay(container, saveId) {
         };
         const btn = el("button", { class: "btn", onclick: check }, "➤");
         input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); check(); } });
-        actions.replaceChildren(el("div", { class: "free-input" }, input, btn), feedback);
+        actions.replaceChildren(...[el("div", { class: "free-input" }, input, btn), feedback, hintButton()].filter(Boolean));
         input.focus();
       }
       return;
@@ -391,6 +476,7 @@ function renderPlay(container, saveId) {
           sfx("fail");
           const hint = el("small", { class: "lock-hint" }, " 🔒 " + (choice.lockHint || "Dafür fehlt dir noch etwas."));
           if (!wrap.querySelector(".lock-hint")) wrap.append(hint);
+          actions.querySelector(".btn-hint")?.classList.add("pulse");
         } }, "🔒 " + choice.label));
       } else {
         wrap.append(el("button", { class: "btn btn-choice" + (choice.secret ? " btn-secret" : ""), onclick: () => {
@@ -400,7 +486,7 @@ function renderPlay(container, saveId) {
         } }, (choice.secret ? "✨ " : "") + choice.label));
       }
     }
-    actions.replaceChildren(wrap);
+    actions.replaceChildren(...[wrap, hintButton()].filter(Boolean));
   }
 
   // Aktuellen Knoten anzeigen (ohne Effekte erneut anzuwenden)

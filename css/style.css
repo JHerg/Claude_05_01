@@ -535,3 +535,21 @@ body.theme-adventure .btn-secret { border-color: #b89af0; }
 .log-entry small { color: var(--muted); margin-right: 6px; }
 
 .quiz-knowledge { font-size: 1.25rem; }
+
+/* ---------- Stufenweise Hilfe ---------- */
+
+.btn-hint { margin-top: 10px; align-self: flex-start; }
+.btn-hint.pulse { animation: hint-pulse 1.1s ease-in-out 3; border-color: var(--accent); color: var(--accent-dark); }
+@keyframes hint-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); box-shadow: 0 0 0 6px var(--accent-soft); }
+}
+
+.hint-box {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 8px 0;
+}
+.hint-box.hint-final { border-left-color: var(--green); background: rgba(83, 192, 106, 0.12); }

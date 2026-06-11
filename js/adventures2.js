@@ -36,6 +36,10 @@ const DETEKTIV = {
     {
       id: "d2", scene: "schrank",
       text: `Die Aula. Der Trophäenschrank steht offen, das Schloss ist <em>unversehrt</em> — kein Einbruch! Auf dem leeren Pokal-Platz: nur ein Staubring. Frau Sommer flüstert: „Freitagnachmittag war er noch da.“ Zeit für Detektivarbeit. Was untersuchst du?`,
+      hints: [
+        `Gute Detektive schauen überall hin: oben, zur Seite und nach unten.`,
+        `Der richtige Schritt: Untersuche nacheinander alle drei Stellen — Schrank, Fenster und Boden. Erst mit allen drei Spuren geht es zur Befragung.`,
+      ],
       choices: [
         { label: "🔍 Den Schrank von oben bis unten", to: "d2a", hideIf: ["hinweis_kratzer"] },
         { label: "🔍 Das Fenster daneben", to: "d2b", hideIf: ["hinweis_feder"] },
@@ -61,6 +65,11 @@ const DETEKTIV = {
     {
       id: "d3", scene: "hof",
       text: `Auf dem Schulhof gehst du deine Liste durch. Drei Personen waren am Freitag noch im Gebäude: <strong>Hausmeister Krause</strong> (mürrisch, hat alle Schlüssel), die <strong>neue Schülerin Mia</strong> (huscht ständig heimlich umher) und <strong>Sportlehrer Herr Bolt</strong> (dem der Pokal „sowieso gehört“, wie er gern sagt). Wen knöpfst du dir vor?`,
+      hints: [
+        `Keiner der drei ist der Dieb — aber JEDER weiß etwas, das dich weiterbringt. Sprich am besten mit allen.`,
+        `Beim Hausmeister hilft Anpacken statt Verhören (es lohnt sich doppelt!), Mia hat ein Geschenk für dich, und Herr Bolt ärgert sich über etwas sehr Aufschlussreiches.`,
+        `Der richtige Schritt: Die heiße Spur bekommst du bei Sportlehrer Bolt — sein Rätsel führt dich direkt zum Kastanienbaum.`,
+      ],
       choices: [
         { label: "🔑 Hausmeister Krause", to: "dk1", hideIf: ["freund_hausmeister"] },
         { label: "🎨 Die neue Schülerin Mia", to: "dm1", hideIf: ["folie"] },
@@ -115,6 +124,10 @@ const DETEKTIV = {
     {
       id: "d4", scene: "baum",
       text: `Der Kastanienbaum ist ein Riese — und ganz oben, gut versteckt, thront ein <strong>Nest voller Glitzerkram</strong>. Von hier unten erkennst du sogar einen goldenen Henkel! Aber wie kommst du da hoch?`,
+      hints: [
+        `Klettern geht immer — aber mit dem richtigen Werkzeug wäre es sicherer.`,
+        `{hat:leiter?Der richtige Schritt: Du hast Krauses Leiter dabei — stell sie an und steig sicher hinauf!:Wer Hausmeister Krause beim Kistentragen hilft, bekommt seine Leiter geliehen. Sonst: klettern und auf die Würfel vertrauen.}`,
+      ],
       choices: [
         { label: "🪜 Krauses Leiter anlegen", to: "d5", require: ["leiter"], lockHint: "Eine Leiter wäre praktisch … wer hat hier nochmal eine?" },
         { label: "🧗 Freiklettern wie ein Eichhörnchen", to: "d4_dice" },
@@ -127,6 +140,11 @@ const DETEKTIV = {
     {
       id: "d5", scene: "baum",
       text: `Du bist oben! Im Nest: Herrn Bolts Trillerpfeife, ein Schlüsselbund, drei Kronkorken — und mittendrin <strong>der Wanderpokal</strong>! Da rauscht es: Die Elster <strong>Kira</strong> landet auf dem Ast und plustert sich auf. „Krah! MEINS!“, scheint ihr Blick zu sagen. Sie sieht nicht so aus, als würde sie ihren Schatz kampflos hergeben.`,
+      hints: [
+        `Eine Elster gibt nichts freiwillig her — außer, sie bekommt etwas Besseres dafür.`,
+        `{hat:folie?Schau in deine Tasche: Mias Glitzerfolie funkelt mehr als jeder Pokal!:Mia sammelt Glitzerfolien — wer freundlich mit ihr spricht, bekommt eine geschenkt.}`,
+        `{hat:folie?Der richtige Schritt: Tausch die Glitzerfolie gegen den Pokal — Kira wird es lieben (und du bekommst einen Erfolg!).:Der richtige Schritt: Geh zurück und sprich mit Mia — ihre Glitzerfolie ist das perfekte Tauschgeschäft. Schnell zugreifen geht zur Not auch, ist aber riskant.}`,
+      ],
       choices: [
         { label: "✨ Tauschgeschäft: die Glitzerfolie anbieten", to: "d6", require: ["folie"], drop: ["folie"], take: ["freund_elster"], lockHint: "Du bräuchtest etwas Glitzerndes zum Tauschen … Mia sammelt sowas." },
         { label: "🫳 Schnell zugreifen, bevor sie reagiert", to: "d5_dice" },
@@ -196,6 +214,11 @@ const INSEL = {
     {
       id: "i4", scene: "lager",
       text: `Das Lagerfeuer knistert, der Unterschlupf aus Palmwedeln hält — erste Nacht überstanden! Im Morgenlicht siehst du es klar: Diese Insel hat <strong>drei Geheimnisse</strong>. Ein <em>Schiffswrack</em> draußen in der Lagune, einen <em>Dschungelpfad</em> mit seltsamen Steinen und eine <em>dunkle Felshöhle</em> am Kliff. Irgendwo dort liegen die Kartenstücke des Piraten Knochenbein — erst alle drei zusammen zeigen den Weg zum Schatz.`,
+      hints: [
+        `Drei Orte, drei Kartenstücke — die Reihenfolge ist egal, du kannst nichts verpassen.`,
+        `In der Lagune wartet mehr als nur ein Kartenstück: Werkzeug für später … und wer mutig genug ist, nochmal tief zu tauchen, findet etwas ganz Besonderes ✨.`,
+        `Der richtige Weg: Lagune (Karte + Werkzeug + Geheimnis) → Dschungel → Felshöhle. Dann zeigt die Karte den Weg zur Piratenruine.`,
+      ],
       choices: [
         { label: "🌊 Zum Wrack in der Lagune schwimmen", to: "il1", hideIf: ["karte1"] },
         { label: "🌿 Den Dschungelpfad erkunden", to: "id1", hideIf: ["karte2"] },
@@ -279,6 +302,10 @@ const INSEL = {
     {
       id: "i7", scene: "ruine",
       text: `<em>Klonk. Krrrr.</em> Die Platte schwingt auf — eine kleine Kammer, und darin: <strong>die Schatztruhe!</strong> Goldmünzen, eine Schiffsglocke, ein Fernrohr … und obenauf ein ledergebundenes <strong>Tagebuch</strong>. {hat:coco?Coco hüpft auf die Truhe und ruft triumphierend: „Knochenbein! Knochenbein!“:}`,
+      hints: [
+        `Das Tagebuch zu lesen kostet nichts — und ein echter Pirat hat dir vielleicht noch etwas zu sagen.`,
+        `Der richtige Schritt: Lies erst das Tagebuch! Knochenbeins letzter Wunsch verändert dein Ende — und bringt dir den Erfolg „Ehrenpirat“.`,
+      ],
       choices: [
         { label: "📜 Erst das Tagebuch lesen", to: "i7b", take: ["tagebuch"] },
         { label: "💰 Schatz einpacken und los!", to: "i8" },
@@ -339,6 +366,10 @@ const FUSSBALL = {
     {
       id: "f2", scene: "kabine",
       text: `Eine Woche bis zum Turnier — Zeit für <strong>ein</strong> Spezialtraining. Tante Resi, eure Trainerin (und Weltmeisterin im Tee-Kochen), lässt dich wählen: „Was schleifen wir, Käpt'n?“`,
+      hints: [
+        `Es gibt keine falsche Wahl — aber jedes Training öffnet später in einem anderen Spiel einen sicheren Weg ohne Würfeln.`,
+        `Pass-Magie hilft gegen die Roboter, Kondition gegen die Nebelgeister, der Spezialschuss im großen Finale. Der Rest ist Würfelglück — und das geht auch!`,
+      ],
       choices: [
         { label: "⚽ Schusstraining — der Unhaltbare", to: "f3", take: ["training_schuss"] },
         { label: "🎯 Passtraining — blindes Verständnis", to: "f3", take: ["training_pass"] },
@@ -353,6 +384,10 @@ const FUSSBALL = {
     {
       id: "m1", scene: "stadion",
       text: `Die Roboter passen sich den Ball zu wie ein Uhrwerk: <em>tak-tak-tak</em>. Nach zehn Minuten habt ihr den Ball noch kaum berührt! In der Trinkpause schaut dich das Team hilfesuchend an. Dein Plan, Käpt'n?`,
+      hints: [
+        `Roboter sind perfekt — aber nur bei Dingen, die man berechnen kann.`,
+        `{hat:training_pass?Der richtige Schritt: Eure Pass-Magie ist schneller als jeder Prozessor — nutzt sie!:Ohne Pass-Training bleibt das Chaos-Spiel mit hohen Bällen und Würfelglück. Und falls es schiefgeht: Tante Resis Taktiktafel rettet euch.}`,
+      ],
       choices: [
         { label: "🎯 Pass-Magie auspacken: schneller als ihr Prozessor!", to: "m1b", require: ["training_pass"], lockHint: "Dafür hättet ihr Passtraining gebraucht." },
         { label: "🚀 Mit hohen, wilden Bällen Chaos stiften", to: "m1_dice" },
@@ -388,6 +423,10 @@ const FUSSBALL = {
     {
       id: "f5", scene: "nebel",
       text: `Flutlicht, Flügelrauschen — und dann rollt dichter <strong>Nebel</strong> übers Feld: Die <strong>Nebelgeister</strong> sind da. Man sieht kaum die eigene Schuhspitze, und die Geister tauchen mal hier, mal dort aus dem Dunst auf. Wie wollt ihr DAS gewinnen?`,
+      hints: [
+        `Wenn man nichts SIEHT, müssen andere Sinne übernehmen … oder ganz viel Puste.`,
+        `{hat:training_kondition?Der richtige Schritt: Mit eurer Turbo-Kondition lauft ihr die Geister in der zweiten Halbzeit einfach schwindelig!:Ohne Konditionstraining hilft Lenas Zuruf-System — mit etwas Würfelglück. Und falls es schiefgeht, gibt es eine zweite Chance mit einem Zahlen-Trick.}`,
+      ],
       choices: [
         { label: "🏃 Turbo-Kondition: lauft sie in Halbzeit zwei schwindelig!", to: "m2win", require: ["training_kondition"], lockHint: "Dafür hättet ihr Konditionstraining gebraucht." },
         { label: "🗣️ Blind-Pass-Trick: Lena dirigiert euch mit Rufen", to: "m2_dice" },
@@ -410,6 +449,10 @@ const FUSSBALL = {
     {
       id: "m3", scene: "finale",
       text: `Das Finale ist ein Krimi: <strong>1:1</strong>, letzte Minute. Da passiert es — <strong>Feuerlilie</strong>, die Kapitänin von Drachenherz, knickt im Mittelfeld um und bleibt liegen. Der Schiedsrichter sieht es nicht! Der Ball ist bei DIR, das Tor ist frei, alle schreien „SCHIESS!“ …`,
+      hints: [
+        `Was zählt bei diesem Turnier nochmal am allermeisten? Es stand im Einladungsbrief …`,
+        `Der richtige Schritt: Schieß den Ball ins Aus, damit Feuerlilie geholfen wird. Fairplay wird in diesem Stadion belohnt — versprochen. (Und es bringt den schönsten Erfolg des Spiels.)`,
+      ],
       choices: [
         { label: "🏵️ Ball ins Aus schießen, damit ihr geholfen wird", to: "m3b", take: ["fairplay"] },
         { label: "⚽ Weiterspielen — Regeln sind Regeln", to: "m3c" },
@@ -423,6 +466,9 @@ const FUSSBALL = {
     {
       id: "m3b", scene: "finale",
       text: `Du schießt den Ball ins Aus und winkst die Betreuer aufs Feld. Das ganze Stadion erhebt sich und <strong>applaudiert</strong> — sogar die Drachenherz-Fans! Feuerlilie wird verarztet, humpelt zurück und klopft dir auf die Schulter: „Jetzt verstehe ich, warum dieses Turnier euch eingeladen hat.“ Dann gibt Drachenherz den Ball fair an euch zurück. Verlängerung? Nein: <strong>Elfmeterschießen!</strong> Und der letzte, alles entscheidende Elfer gehört … dir.`,
+      hints: [
+        `{hat:training_schuss?Der richtige Schritt: Jetzt zahlt sich das Schusstraining aus — der Unhaltbare!:Ohne Spezialschuss bleibt nur Mut und Würfelglück. Aber keine Angst: Verlieren kannst du hier nicht endgültig — Lena hält dir den Rücken frei.}`,
+      ],
       choices: [
         { label: "⚽ Der Unhaltbare — dein Spezialschuss!", to: "ende", require: ["training_schuss"], lockHint: "Den Spezialschuss hättet ihr im Training üben müssen." },
         { label: "🍀 Anlauf, Augen zu und volles Risiko", to: "m3_dice" },

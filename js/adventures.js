@@ -53,6 +53,11 @@ const DRACHENFEUER = {
     {
       id: "gabelung", scene: "dorf",
       text: `Hinter dem Dorf teilt sich der Weg an einem alten Wegweiser. Drei verwitterte Pfeile: <strong>Feuerwald</strong> 🌲, <strong>See der Spiegel</strong> 🌊, <strong>Wolkenberge</strong> ⛰️. Wo die Kristalle schon leuchten, musst du nicht mehr hin.`,
+      hints: [
+        `Du brauchst alle drei Kristalle — die Reihenfolge ist egal. Aber ein kleiner Geheimtipp: Im Feuerwald wartet mehr als nur ein Kristall …`,
+        `Geh am besten zuerst in den Feuerwald 🌲: Dort findest du den roten Kristall UND einen Glitzerstein, den du später in den Wolkenbergen brauchen wirst.`,
+        `Der richtige Weg: Feuerwald → See der Spiegel → Wolkenberge. Mit allen drei Kristallen öffnet sich dann die Drachenhöhle.`,
+      ],
       choices: [
         { label: "🌲 In den Feuerwald (roter Kristall)", to: "fw1", hideIf: ["k_rot"] },
         { label: "🌊 Zum See der Spiegel (blauer Kristall)", to: "se1", hideIf: ["k_blau"] },
@@ -79,6 +84,10 @@ const DRACHENFEUER = {
     {
       id: "fw3", scene: "wald",
       text: `Eine tiefe Schlucht schneidet den Weg ab. Die Hängebrücke? Nur noch zwei traurige Seile und ein Brett. Auf der anderen Seite glimmt es schwach rot zwischen den Felsen — da musst du hin!`,
+      hints: [
+        `{hat:seil?Du hast ein Seil dabei — damit kommst du sicher hinüber, ganz ohne Würfeln!:Mit einem Seil wäre das hier viel sicherer gewesen … das gibt es als Startausrüstung.}`,
+        `{hat:seil?Der richtige Schritt: Nimm das Seil!:Ohne Seil bleibt nur der mutige Sprung mit Würfelglück. Keine Sorge — schlimmstenfalls kostet es ein Herz, weiter geht es immer.}`,
+      ],
       choices: [
         { label: "🪢 Mit dem Seil sichern und hinüberhangeln", to: "fw4", require: ["seil"], lockHint: "Dafür bräuchtest du ein Seil." },
         { label: "Anlauf nehmen und springen!", to: "fw3_dice" },
@@ -116,6 +125,10 @@ const DRACHENFEUER = {
     },
     {
       id: "se3", scene: "see",
+      hints: [
+        `Wie würdest DU am liebsten gefragt werden?`,
+        `Der richtige Schritt: Bitte höflich und hör dir Marinas Geschichte an — fordern kostet nur ein Herz.`,
+      ],
       text: `Am anderen Ufer wartet eine Gestalt aus Wasser und Mondlicht: <strong>Marina, der Seegeist</strong>. In ihren Händen ruht der blaue Kristall. „Viele kamen und <em>forderten</em>", sagt sie leise. „Was tust du?"`,
       choices: [
         { label: "„Gib mir sofort den Kristall!“", to: "se3_fail" },
@@ -149,6 +162,11 @@ const DRACHENFEUER = {
     },
     {
       id: "wb2", scene: "berge",
+      hints: [
+        `Karla will etwas Glänzendes. Hast du auf deiner Reise irgendwo etwas Funkelndes gesehen — oder vielleicht sogar eingesteckt?`,
+        `{hat:glitzerstein?Schau in deinen Rucksack: Der 💎 Glitzerstein aus der Höhle der Glut ist GENAU das richtige Geschenk!:In der Höhle der Glut im Feuerwald liegt ein Glitzerstein — direkt neben dem roten Kristall.}`,
+        `{hat:glitzerstein?Der richtige Schritt: Schenk Karla den Glitzerstein — dann lässt sie dich freundlich passieren.:Der richtige Schritt: Geh zurück zur Weggabelung und hol dir im Feuerwald den roten Kristall samt Glitzerstein. Bis dahin bleibt nur das Vorbeischleichen mit Würfelglück.}`,
+      ],
       text: `Auf dem Grat versperrt dir <strong>Karla die Krähe</strong> den Weg — groß wie ein Hund und doppelt so frech. „Hier kommt nur vorbei, wer mir was <em>Glänzendes</em> schenkt", krächzt sie und legt den Kopf schief.`,
       choices: [
         { label: "💎 Ihr den Glitzerstein schenken", to: "wb3", require: ["glitzerstein"], drop: ["glitzerstein"], lockHint: "Du hast gerade nichts Glänzendes dabei … (Tipp: Im Feuerwald soll es funkeln.)" },
@@ -175,6 +193,10 @@ const DRACHENFEUER = {
     {
       id: "dh1", scene: "hoehle",
       text: `Die drei Kristalle summen leise in deiner Tasche, als du den Eingang der <strong>Drachenhöhle</strong> erreichst. Drinnen: Dunkelheit, dick wie Tinte.`,
+      hints: [
+        `Mit Licht entdeckt man hier ein Geheimnis, das später noch wichtig wird …`,
+        `{hat:laterne?Der richtige Schritt: Zünde deine Laterne an — du wirst etwas über Umbra erfahren (und einen Erfolg freischalten!).:Mit der Laterne (Startausrüstung) gäbe es hier ein Geheimnis zu sehen. Ohne sie hilft nur vorsichtiges Tasten mit Würfelglück — auch das führt ans Ziel.}`,
+      ],
       choices: [
         { label: "🏮 Die Laterne anzünden und eintreten", to: "dh1b", require: ["laterne"], lockHint: "Ohne Licht bleibt nur das vorsichtige Tasten." },
         { label: "Im Dunkeln vorwärtstasten", to: "dh1_dice" },
@@ -191,6 +213,11 @@ const DRACHENFEUER = {
     },
     {
       id: "dh2", scene: "hoehle",
+      hints: [
+        `Erinnerst du dich an Marinas Worte am See? „Wenn du Umbra triffst: Hör ihm zu.“`,
+        `Angreifen ist hier der falsche Weg — das hat noch bei niemandem funktioniert.`,
+        `Der richtige Schritt: Frag Umbra, WARUM er die Farben genommen hat — oder zeig ihm ruhig die Kristalle. Freundlichkeit gewinnt dieses Finale.`,
+      ],
       text: `Die große Halle. Zwei Augen wie Bernsteinlampen öffnen sich in der Finsternis — <strong>Umbra</strong>, der Schattendrache, größer als das Rathaus von Funkenfels. Um ihn herum wirbeln alle gestohlenen Farben wie ein gefangener Regenbogen. „<em>Noch ein Mensch</em>", grollt er. „<em>Kommst du mit Fackeln und Mistgabeln, wie all die anderen?</em>"`,
       choices: [
         { label: "⚔️ Angreifen, solange er spricht!", to: "dh2_fight" },
@@ -259,6 +286,10 @@ const STERNENBASIS = {
     },
     {
       id: "s2", scene: "korridor",
+      hints: [
+        `Beides muss erledigt werden — du kannst nichts verpassen.`,
+        `Tipp: Am rundesten läuft es, wenn du ZUERST den Reaktor im Maschinenraum reparierst — ohne Strom fehlt der Brücke nämlich der Hauptantrieb.`,
+      ],
       text: `B0B rattert eine Liste herunter: „EMPFEHLUNG: ERSTENS REAKTOR IM <strong>MASCHINENRAUM</strong> STARTEN. ZWEITENS KURS AUF DER <strong>BRÜCKE</strong> SETZEN. REIHENFOLGE: EGAL. PANIK: NICHT HILFREICH."`,
       choices: [
         { label: "🔧 In den Maschinenraum", to: "m1", hideIf: ["ersatzteil_done"] },
@@ -295,6 +326,11 @@ const STERNENBASIS = {
     {
       id: "l2", scene: "lager",
       text: `Vor dir sitzt ein Wesen wie ein riesiger grüner Wackelpudding mit Kulleraugen — ein <strong>Glibber</strong>! Er ist als blinder Passagier an Bord gekommen und sieht kein bisschen gefährlich aus. Eher … satt. In seinem durchsichtigen Bauch schimmert etwas Kantiges: <em>der Energiekristall!</em> Er hat ihn verschluckt, weil er so schön geglitzert hat.`,
+      hints: [
+        `Glibber lieben Süßes über alles. Gab es an Bord nicht irgendwo etwas Leckeres?`,
+        `{hat:pudding?Du hast den Astronautenpudding dabei — Glibber können da unmöglich widerstehen!:In der Bordküche gibt es Astronautenpudding (Galaktische Vanille!).}`,
+        `{hat:pudding?Der richtige Schritt: Biete dem Glibber den Pudding zum Tausch an — friedlich, sicher und einen Erfolg wert.:Der richtige Schritt: Geh zurück in die Küche, hol den Pudding und biete ihn zum Tausch an. Kitzeln geht zur Not auch — ist aber Glückssache.}`,
+      ],
       choices: [
         { label: "🍮 Den Pudding als Tauschgeschäft anbieten", to: "l3", require: ["pudding"], drop: ["pudding"], take: ["tausch"], lockHint: "Du hast nichts Leckeres dabei. (In der Küche gäbe es was …)" },
         { label: "Ihn vorsichtig durchkitzeln", to: "l2_dice" },
@@ -328,6 +364,10 @@ const STERNENBASIS = {
     },
     {
       id: "b3", scene: "bruecke",
+      hints: [
+        `{hat:ersatzteil_done?Alles bereit — nichts wie nach Hause!:Ohne Strom kein Heimflug. Da fehlt noch etwas Wichtiges …}`,
+        `{hat:ersatzteil_done?Der richtige Schritt: Heimflug starten! 🌍:Der richtige Schritt: In den Maschinenraum! Der Energiekristall fehlt — die Spur führt in Lagerraum 3, und dort hilft etwas Süßes aus der Küche.}`,
+      ],
       text: `„FREIGABE ERTEILT", schnurrt der Computer. {hat:ersatzteil_done?Mit vollem Reaktorschub schwenkt die Sternenbasis 7 auf Heimatkurs.:„HINWEIS: OHNE REAKTOR KEIN HAUPTANTRIEB. BITTE ENERGIEKRISTALL EINSETZEN." B0B räuspert sich elektrisch: „MASCHINENRAUM. ICH SAGE ES NUR UNGERN."}`,
       choices: [
         { label: "🌍 Heimflug starten!", to: "ende", require: ["ersatzteil_done"], lockHint: "Erst muss der Reaktor laufen — der Kristall fehlt noch." },
