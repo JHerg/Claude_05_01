@@ -8,12 +8,20 @@ ersten Besuch dank Service Worker sogar ganz ohne Internet.
 
 Interaktive Text-Abenteuer für Kinder (ca. 10–12 Jahre) mit allem, was dazugehört:
 
-- **Zwei komplette Abenteuer**: *Drachenfeuer* (rette die gestohlenen Farben des
-  Königreichs — und heile den einsamen Schattendrachen) und *Sternenbasis 7*
-  (allein auf der Raumstation, mit Roboter B0B und einem hungrigen Glibberwesen).
-- **Echte Spielmechanik**: Herzen ❤️, Rucksack mit Gegenständen 🎒, animierte
-  Würfelproben 🎲, Mathe- und Logikrätsel 🧩 — und Entscheidungen, die wirklich
-  etwas ändern (die Startausrüstung öffnet z. B. später andere Wege).
+- **Fünf komplette Abenteuer** (100 Story-Knoten, 27 Szenenbilder):
+  *Drachenfeuer* (heile den einsamen Schattendrachen), *Sternenbasis 7*
+  (allein auf der Raumstation, mit Roboter B0B und Glibberwesen), *Detektivbüro
+  Blitz* (Spuren sichern, Verdächtige befragen, den Pokal-Dieb überführen),
+  *Die vergessene Insel* (Schatzkarte, Papagei Coco, Piratengeheimnis) und
+  *Pokal der Legenden* (magisches Fußballturnier, bei dem das Herz zählt).
+- **Echte Spielmechanik**: Herzen ❤️, Rucksack 🎒, animierte Würfelproben 🎲,
+  Mathe- und Logikrätsel 🧩, geheime Pfade ✨ — und Entscheidungen mit Folgen
+  über Handlungsstränge hinweg.
+- **Erfolge & Abzeichen** 🏅 pro Abenteuer (z. B. „Fairplay-Legende“,
+  „Perlentaucher“) mit Endstatistik und Konfettiregen — hoher Wiederspielwert.
+- **Vorlesen** 🔊 per Browser-Sprachausgabe (offline), **Soundeffekte** 🔔
+  (synthetisch per WebAudio, abschaltbar), **Erzähl-Animation** und **Logbuch** 📖
+  mit der bisherigen Geschichte.
 - **Handgemalte SVG-Szenenbilder** zu jedem Schauplatz.
 - **Kindgerecht**: Scheitern ist nie endgültig (bei 0 Herzen wirst du gerettet),
   Konflikte werden mit Köpfchen und Freundlichkeit gelöst, jedes Abenteuer hat
@@ -26,10 +34,10 @@ Fünf Helfer für jeden Tag:
 
 | Modul | Was es kann |
 |---|---|
-| 🧠 **Lern-Trainer** | Kopfrechnen in 3 Stufen (endlos generierte Aufgaben), 60-Sekunden-Einmaleins-Sprint, Englisch-Vokabeln (4 Sets) als Lernkarten & Quiz — mit lokaler Bestenliste |
-| 🍳 **Koch-Pilot** | 18 alltagstaugliche Familienrezepte mit Filter (vegetarisch, schnell, süß) und Zutaten-Suche; Wochenplan-Würfel (Mo–Fr) mit zusammengefasster, abhakbarer Einkaufsliste |
-| ✍️ **Schreibwerkstatt** | Ausfüll-Vorlagen: Schul-Entschuldigung, Kündigung, Reklamation, Glückwunsch, Einladung, Nachbarschafts-Nachricht — mit Kopieren-Knopf |
-| 🗓️ **Planer** | Checklisten-Vorlagen (Kindergeburtstag, Urlaub, Packliste, Schulstart, Umzug, Notfall-Infos) zum Abhaken, mit Fortschrittsbalken und eigenen Punkten |
+| 🧠 **Lern-Trainer** | Kopfrechnen in 3 Stufen (endlos generierte Aufgaben), 60-Sekunden-Einmaleins-Sprint, Englisch-Vokabeln (6 Sets) als Lernkarten & Quiz, Wissens-Quiz mit 36 Fragen und Aha-Fakten — mit lokaler Bestenliste |
+| 🍳 **Koch-Pilot** | 24 alltagstaugliche Familienrezepte mit Filter (vegetarisch, schnell, süß) und Zutaten-Suche; Wochenplan-Würfel (Mo–Fr) mit zusammengefasster, abhakbarer Einkaufsliste |
+| ✍️ **Schreibwerkstatt** | 8 Ausfüll-Vorlagen: Schul-Entschuldigung, Kündigung, Reklamation, Krankmeldung, Widerruf, Glückwunsch, Einladung, Nachbarschafts-Nachricht — mit Kopieren-Knopf |
+| 🗓️ **Planer** | 9 Checklisten-Vorlagen (Kindergeburtstag, Urlaub, Packliste, Klassenfahrt, Camping, Schulstart, Umzug, Weihnachten, Notfall-Infos) zum Abhaken, mit Fortschrittsbalken und eigenen Punkten |
 | 💰 **Taschengeld** | Ein Konto pro Kind: Einzahlen/Ausgeben mit Notiz, Verlauf, Sparziel mit Fortschrittsbalken |
 
 ## 🚀 Veröffentlichen auf GitHub Pages

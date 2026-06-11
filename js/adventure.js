@@ -1,15 +1,17 @@
-// Die Abenteuer-Maschine (offline): Engine für die handgeschriebenen,
-// verzweigten Abenteuer aus adventures.js — mit Herzen, Inventar,
-// Würfelproben, Rätseln und SVG-Szenen. Keine API, keine Kosten.
+// Die Abenteuer-Maschine (offline) — Engine v2:
+// Herzen, Inventar, Würfelproben, Rätsel, SVG-Szenen, Erzähl-Animation,
+// Vorlesen (Sprachausgabe), Soundeffekte, Logbuch, Erfolge & Konfetti.
 
 import { ADVENTURES, getAdventure } from "./adventures.js";
-import { listSaves, getSave, putSave, deleteSave, newId } from "./storage.js";
-import { el, escapeHtml, scrollToBottom } from "./ui.js";
+import { listSaves, getSave, putSave, deleteSave, newId, getSettings, setSettings } from "./storage.js";
+import { el, escapeHtml, sfx, setSoundOn, isSoundOn, canSpeak, speak, stopSpeak, typewriter, confetti } from "./ui.js";
 
 const DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
 export function route(container, parts) {
   document.body.classList.add("theme-adventure");
+  stopSpeak();
+  setSoundOn(getSettings().sound !== false);
   if (parts.length === 0) return renderHome(container);
   if (parts[0] === "play" && parts[1]) return renderPlay(container, parts[1]);
   location.hash = "#/adventure";
@@ -21,17 +23,22 @@ function renderHome(container) {
   container.replaceChildren(
     el("section", { class: "hero" },
       el("h2", {}, "🐉 Abenteuer-Maschine"),
-      el("p", {}, "Wähle dein Abenteuer und triff deine Entscheidungen: Herzen, Rucksack, Würfelglück — und mehr als ein Weg zum Happy End. Alles offline, jederzeit speicherbar."),
+      el("p", {}, "Fünf Welten, deine Entscheidungen: Herzen, Rucksack, Würfelglück, Rätsel — und in jedem Abenteuer Erfolge zu entdecken. Alles offline, automatisch gespeichert."),
     ),
   );
 
   const grid = el("div", { class: "scenario-grid scenario-grid-big" });
   for (const adv of ADVENTURES) {
+    const earned = bestAchievements(adv.id);
     grid.append(
-      el("button", { class: "scenario-card", onclick: () => startNew(adv.id) },
+      el("button", { class: "scenario-card", onclick: () => { sfx("click"); startNew(adv.id); } },
         el("span", { class: "scenario-emoji" }, adv.emoji),
         el("strong", {}, adv.title),
         el("small", {}, adv.tagline),
+        el("small", { class: "ach-row" },
+          ...(adv.achievements || []).map((a) =>
+            el("span", { class: "ach-mini" + (earned.has(a.id) ? "" : " ach-locked"), title: a.label }, a.emoji)),
+        ),
         el("span", { class: "world-cta" }, "Neu starten ➤"),
       ),
     );
@@ -54,7 +61,7 @@ function renderHome(container) {
             el("button", { class: "btn", onclick: () => (location.hash = `#/adventure/play/${s.id}`) }, s.finished ? "📖 Nochmal ansehen" : "▶ Weiterspielen"),
             el("button", {
               class: "btn btn-ghost", title: "Spielstand löschen",
-              onclick: () => { if (confirm(`Spielstand „${adv.title}" wirklich löschen?`)) { deleteSave(s.id); renderHome(container); } },
+              onclick: () => { if (confirm(`Spielstand „${adv.title}“ wirklich löschen?`)) { deleteSave(s.id); renderHome(container); } },
             }, "🗑"),
           ),
         ),
@@ -62,6 +69,16 @@ function renderHome(container) {
     }
     container.append(el("h3", {}, "Deine Spielstände"), list);
   }
+}
+
+/** Alle in irgendeinem Spielstand dieses Abenteuers freigespielten Erfolge. */
+function bestAchievements(adventureId) {
+  const ids = new Set();
+  for (const s of listSaves()) {
+    if (s.adventureId !== adventureId) continue;
+    for (const a of s.achievements || []) ids.add(a);
+  }
+  return ids;
 }
 
 function startNew(adventureId) {
@@ -73,8 +90,11 @@ function startNew(adventureId) {
     hp: adv.maxHp,
     items: [],
     visited: [],
+    path: [],
     steps: 0,
+    diceLost: 0,
     finished: false,
+    achievements: [],
     createdAt: Date.now(),
   };
   putSave(save);
@@ -88,6 +108,9 @@ function renderPlay(container, saveId) {
   if (!save) { location.hash = "#/adventure"; return; }
   const adv = getAdventure(save.adventureId);
   if (!adv) { location.hash = "#/adventure"; return; }
+  save.path = save.path || [];
+  save.diceLost = save.diceLost || 0;
+  save.achievements = save.achievements || [];
 
   const nodeById = Object.fromEntries(adv.nodes.map((n) => [n.id, n]));
 
@@ -99,6 +122,32 @@ function renderPlay(container, saveId) {
     inventory: el("div", { class: "hud-inventory" }),
   };
 
+  // --- Werkzeugleiste: Vorlesen, Sound, Logbuch ---
+  let currentPlainText = "";
+  const readBtn = el("button", { class: "tab tool-btn", title: "Geschichte vorlesen" }, "🔊 Vorlesen");
+  readBtn.addEventListener("click", () => {
+    if (readBtn.classList.contains("active")) { stopSpeak(); readBtn.classList.remove("active"); return; }
+    readBtn.classList.add("active");
+    if (!speak(currentPlainText, () => readBtn.classList.remove("active"))) {
+      readBtn.textContent = "🔇 nicht verfügbar";
+    }
+  });
+  if (!canSpeak()) readBtn.style.display = "none";
+
+  const soundBtn = el("button", { class: "tab tool-btn", title: "Soundeffekte an/aus" }, isSoundOn() ? "🔔 Sound an" : "🔕 Sound aus");
+  soundBtn.addEventListener("click", () => {
+    const on = !isSoundOn();
+    setSoundOn(on);
+    setSettings({ sound: on });
+    soundBtn.textContent = on ? "🔔 Sound an" : "🔕 Sound aus";
+    if (on) sfx("click");
+  });
+
+  const logBtn = el("button", { class: "tab tool-btn", title: "Bisherige Geschichte" }, "📖 Logbuch");
+  logBtn.addEventListener("click", () => showLog());
+
+  const toolbar = el("div", { class: "tab-bar game-toolbar" }, readBtn, soundBtn, logBtn);
+
   container.replaceChildren(
     el("div", { class: "game" },
       el("div", { class: "game-main" }, scene, storyBox, actions),
@@ -107,7 +156,8 @@ function renderPlay(container, saveId) {
         hud.hearts,
         el("h4", {}, "🎒 Rucksack"),
         hud.inventory,
-        el("button", { class: "btn btn-ghost btn-small", style: "margin-top:14px", onclick: () => (location.hash = "#/adventure") }, "💾 Speichern & zurück"),
+        toolbar,
+        el("button", { class: "btn btn-ghost btn-small", style: "margin-top:10px", onclick: () => { stopSpeak(); location.hash = "#/adventure"; } }, "💾 Speichern & zurück"),
       ),
     ),
   );
@@ -130,21 +180,49 @@ function renderPlay(container, saveId) {
     );
   }
 
-  function showStory(html, cls = "bubble-story") {
+  function showStory(html, cls = "bubble-story", animate = true) {
     const node = el("div", { class: "bubble " + cls });
-    node.innerHTML = html;
+    if (animate) typewriter(node, html);
+    else node.innerHTML = html;
     storyBox.replaceChildren(node);
     storyBox.scrollTop = 0;
+    currentPlainText = node.textContent;
+    stopSpeak();
+    readBtn.classList.remove("active");
+  }
+
+  function showLog() {
+    const entries = save.path
+      .map((id) => nodeById[id])
+      .filter((n) => n && (n.text || n.dice || n.riddle));
+    const overlay = el("div", { class: "overlay", onclick: (e) => { if (e.target === overlay) overlay.remove(); } },
+      el("div", { class: "overlay-card" },
+        el("h3", {}, "📖 Dein Logbuch"),
+        entries.length
+          ? el("div", { class: "logbook" }, ...entries.map((n, i) => {
+              const div = el("div", { class: "log-entry" });
+              const txt = n.text ? renderText(n.text) : (n.dice ? "🎲 " + escapeHtml(n.dice.text) : "🧩 " + escapeHtml(n.riddle.question));
+              div.innerHTML = `<small>${i + 1}.</small> ${txt}`;
+              return div;
+            }))
+          : el("p", { class: "muted" }, "Noch nichts erlebt — gleich ändern!"),
+        el("button", { class: "btn", onclick: () => overlay.remove() }, "Weiter geht's"),
+      ),
+    );
+    document.body.append(overlay);
   }
 
   function applyChoiceEffects(choice) {
-    for (const item of choice.take || []) if (!has(item)) save.items.push(item);
+    let gotItem = false;
+    for (const item of choice.take || []) if (!has(item)) { save.items.push(item); if (adv.items[item]) gotItem = true; }
     for (const item of choice.drop || []) save.items = save.items.filter((i) => i !== item);
     if (choice.hp) changeHp(choice.hp);
+    if (gotItem) sfx("item");
   }
 
   function changeHp(delta) {
     save.hp = Math.min(adv.maxHp, save.hp + delta);
+    if (delta < 0) sfx("ouch");
   }
 
   function checkRescue() {
@@ -165,6 +243,8 @@ function renderPlay(container, saveId) {
     if (!node) { console.warn("Unbekannter Knoten:", nodeId); return; }
     save.nodeId = nodeId;
     if (viaChoice) save.steps = (save.steps || 0) + 1;
+    if (save.path[save.path.length - 1] !== nodeId) save.path.push(nodeId);
+    if (save.path.length > 200) save.path = save.path.slice(-150);
 
     // Einmalige Knoten-Effekte (nur beim ersten Besuch)
     if (!save.visited.includes(nodeId)) {
@@ -189,6 +269,7 @@ function renderPlay(container, saveId) {
       const die = el("button", { class: "btn btn-dice" }, "🎲 Würfeln!");
       die.addEventListener("click", () => {
         die.disabled = true;
+        sfx("dice");
         let ticks = 0;
         const interval = setInterval(() => {
           die.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
@@ -197,10 +278,13 @@ function renderPlay(container, saveId) {
             const n = 1 + Math.floor(Math.random() * 6);
             const success = n >= 4;
             die.textContent = `${DICE_FACES[n - 1]}  Eine ${n}! ${success ? "Geschafft! 🎉" : "Oh nein …"}`;
+            sfx(success ? "win" : "fail");
             setTimeout(() => {
               if (success) {
+                for (const item of node.dice.winTake || []) if (!has(item)) save.items.push(item);
                 goto(node.dice.win);
               } else {
+                save.diceLost++;
                 changeHp(-(node.dice.loseHp || 1));
                 putSave(save);
                 if (save.hp <= 0) { checkRescue(); return; }
@@ -227,11 +311,13 @@ function renderPlay(container, saveId) {
       const succeed = () => {
         feedback.className = "success";
         feedback.textContent = "✅ Richtig!";
+        sfx("win");
         setTimeout(() => goto(r.win), 700);
       };
       const fail = () => {
         feedback.className = "error";
         feedback.textContent = "❌ Hmm, das stimmt nicht. Tipp: " + r.hint;
+        sfx("fail");
       };
 
       if (r.options) {
@@ -257,13 +343,35 @@ function renderPlay(container, saveId) {
 
     // --- Happy End ---
     if (node.end === "win") {
+      const firstWin = !save.finished;
       save.finished = true;
+      const earned = (adv.achievements || []).filter((a) => {
+        try { return a.test(save); } catch { return false; }
+      });
+      save.achievements = [...new Set([...(save.achievements || []), ...earned.map((a) => a.id)])];
       putSave(save);
       showStory(`<p>${renderText(node.text)}</p>`);
+      if (firstWin) { sfx("fanfare"); confetti(); }
+
+      const earnedIds = new Set(save.achievements);
       actions.replaceChildren(
         el("div", { class: "game-over" },
           el("h3", {}, "🏅 Abenteuer geschafft! 🏅"),
-          el("p", {}, `Du hast es in ${save.steps} Schritten geschafft — mit ${save.hp} von ${adv.maxHp} Herzen!`),
+          el("div", { class: "end-stats" },
+            el("span", { class: "chip" }, `👣 ${save.steps} Schritte`),
+            el("span", { class: "chip" }, `❤️ ${save.hp}/${adv.maxHp} Herzen`),
+            el("span", { class: "chip" }, `🎲 ${save.diceLost === 0 ? "kein Pechwurf!" : save.diceLost + "× Würfelpech"}`),
+          ),
+          (adv.achievements || []).length
+            ? el("div", { class: "ach-list" },
+                el("h4", {}, "Erfolge"),
+                ...(adv.achievements || []).map((a) =>
+                  el("div", { class: "ach-badge" + (earnedIds.has(a.id) ? "" : " ach-locked") },
+                    el("span", { class: "ach-emoji" }, earnedIds.has(a.id) ? a.emoji : "🔒"),
+                    el("span", {}, a.label),
+                  )),
+              )
+            : null,
           el("button", { class: "btn btn-big", onclick: () => startNew(adv.id) }, "🔁 Nochmal anders spielen"),
           el("button", { class: "btn btn-ghost", onclick: () => (location.hash = "#/adventure") }, "Zur Abenteuer-Auswahl"),
         ),
@@ -276,17 +384,20 @@ function renderPlay(container, saveId) {
     const wrap = el("div", { class: "choices" });
     for (const choice of node.choices || []) {
       if ((choice.hideIf || []).some(has)) continue;
+      if ((choice.showIf || []).some((item) => !has(item))) continue;
       const locked = (choice.require || []).some((item) => !has(item));
       if (locked) {
         wrap.append(el("button", { class: "btn btn-choice btn-locked", onclick: () => {
+          sfx("fail");
           const hint = el("small", { class: "lock-hint" }, " 🔒 " + (choice.lockHint || "Dafür fehlt dir noch etwas."));
           if (!wrap.querySelector(".lock-hint")) wrap.append(hint);
         } }, "🔒 " + choice.label));
       } else {
-        wrap.append(el("button", { class: "btn btn-choice", onclick: () => {
+        wrap.append(el("button", { class: "btn btn-choice" + (choice.secret ? " btn-secret" : ""), onclick: () => {
+          sfx("click");
           applyChoiceEffects(choice);
           goto(choice.to);
-        } }, choice.label));
+        } }, (choice.secret ? "✨ " : "") + choice.label));
       }
     }
     actions.replaceChildren(wrap);

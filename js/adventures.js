@@ -27,6 +27,12 @@ const DRACHENFEUER = {
     k_rot: "🔴 Roter Kristall", k_blau: "🔵 Blauer Kristall", k_gold: "🟡 Goldener Kristall",
   },
   rescue: { text: "Alles wird schwarz … doch dann riechst du Kräutertee. Meisterin Lumina hat dich gefunden und gesund gepflegt. „Kopf hoch“, sagt sie. „Jede Heldin und jeder Held stolpert mal.“ Du bist wieder bei Kräften!", to: "gabelung" },
+  achievements: [
+    { id: "tierfreund", emoji: "🦊", label: "Tierfreund — Funke den Fuchs befreit", test: (s) => s.items.includes("fuchs") },
+    { id: "friedensstifter", emoji: "🕊️", label: "Friedensstifter — nie wütend geworden", test: (s) => !s.visited.includes("dh2_fight") && !s.visited.includes("se3_fail") },
+    { id: "hoehlenforscher", emoji: "🏮", label: "Höhlenforscher — die geheimen Zeichnungen entdeckt", test: (s) => s.visited.includes("dh1b") },
+    { id: "unverwundbar", emoji: "💪", label: "Unverwundbar — mit vollen Herzen ins Ziel", test: (s) => s.hp >= 5 },
+  ],
   start: "start",
   scenes: SCENES_DRACHE,
   nodes: [
@@ -237,6 +243,12 @@ const STERNENBASIS = {
     ersatzteil: "🔧 Energiekristall", glibbi: "🟢 Glibbi (Maskottchen)",
   },
   rescue: { text: "Piep-piep! B0B zieht dich mit seinem Greifarm in die MedBay und verpasst dir ein Pflaster mit Raketenmuster. „REPARATUR ABGESCHLOSSEN. BITTE NICHT MEHR KAPUTTGEHEN“, schnarrt er. Du bist wieder fit!", to: "s2" },
+  achievements: [
+    { id: "puddingdiplomat", emoji: "🍮", label: "Pudding-Diplomat — Glibbi friedlich überzeugt", test: (s) => s.items.includes("tausch") },
+    { id: "lichtblick", emoji: "🔦", label: "Lichtblick — nie blind durchs Dunkel gestolpert", test: (s) => !s.visited.includes("l1_dice") },
+    { id: "blitzpilot", emoji: "🚀", label: "Blitz-Pilot — in höchstens 14 Schritten heim", test: (s) => s.steps <= 14 },
+    { id: "unverwundbar", emoji: "💪", label: "Unverwundbar — mit vollen Herzen ins Ziel", test: (s) => s.hp >= 5 },
+  ],
   start: "s1",
   scenes: SCENES_RAUM,
   nodes: [
@@ -284,7 +296,7 @@ const STERNENBASIS = {
       id: "l2", scene: "lager",
       text: `Vor dir sitzt ein Wesen wie ein riesiger grüner Wackelpudding mit Kulleraugen — ein <strong>Glibber</strong>! Er ist als blinder Passagier an Bord gekommen und sieht kein bisschen gefährlich aus. Eher … satt. In seinem durchsichtigen Bauch schimmert etwas Kantiges: <em>der Energiekristall!</em> Er hat ihn verschluckt, weil er so schön geglitzert hat.`,
       choices: [
-        { label: "🍮 Den Pudding als Tauschgeschäft anbieten", to: "l3", require: ["pudding"], drop: ["pudding"], lockHint: "Du hast nichts Leckeres dabei. (In der Küche gäbe es was …)" },
+        { label: "🍮 Den Pudding als Tauschgeschäft anbieten", to: "l3", require: ["pudding"], drop: ["pudding"], take: ["tausch"], lockHint: "Du hast nichts Leckeres dabei. (In der Küche gäbe es was …)" },
         { label: "Ihn vorsichtig durchkitzeln", to: "l2_dice" },
         { label: "Zurück zur Küche, Pudding holen", to: "k1" },
       ],
@@ -329,7 +341,9 @@ const STERNENBASIS = {
   ],
 };
 
-export const ADVENTURES = [DRACHENFEUER, STERNENBASIS];
+import { MORE_ADVENTURES } from "./adventures2.js";
+
+export const ADVENTURES = [DRACHENFEUER, STERNENBASIS, ...MORE_ADVENTURES];
 
 export function getAdventure(id) {
   return ADVENTURES.find((a) => a.id === id) || null;

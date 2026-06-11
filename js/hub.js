@@ -1,7 +1,7 @@
 // Der Alltagshelfer (offline): Lern-Trainer, Koch-Pilot, Schreibwerkstatt,
 // Planer und Taschengeld-Tracker — alles ohne Internet, ohne Kosten.
 
-import { RECIPES, LETTERS, CHECKLISTS, VOCAB_SETS } from "./data.js";
+import { RECIPES, LETTERS, CHECKLISTS, VOCAB_SETS, QUIZ_FRAGEN } from "./data.js";
 import { getModuleState, setModuleState, newId } from "./storage.js";
 import { el, escapeHtml, pick, shuffle } from "./ui.js";
 
@@ -55,7 +55,9 @@ function renderLernen(container) {
     el("button", { class: "module-card", onclick: () => sprint(container) },
       el("span", { class: "module-emoji" }, "⚡"), el("strong", {}, "Einmaleins-Sprint"), el("small", {}, "60 Sekunden — wie viele schaffst du?")),
     el("button", { class: "module-card", onclick: () => vokabeln(container) },
-      el("span", { class: "module-emoji" }, "🇬🇧"), el("strong", {}, "Englisch-Vokabeln"), el("small", {}, "Lernkarten und Quiz, 4 Themen-Sets.")),
+      el("span", { class: "module-emoji" }, "🇬🇧"), el("strong", {}, "Englisch-Vokabeln"), el("small", {}, "Lernkarten und Quiz, 6 Themen-Sets.")),
+    el("button", { class: "module-card", onclick: () => wissensQuiz(container) },
+      el("span", { class: "module-emoji" }, "🌍"), el("strong", {}, "Wissens-Quiz"), el("small", {}, "Weltraum, Tiere, Körper & Co. — mit Aha-Fakten zu jeder Frage.")),
   );
   container.append(menu, bestenliste());
 }
@@ -294,6 +296,50 @@ function vocabQuiz(container, set) {
   draw();
   container.replaceChildren(
     el("section", { class: "panel panel-narrow" }, el("h3", {}, `❓ ${set.title}`), qEl, optWrap, feedback, progress),
+  );
+}
+
+function wissensQuiz(container) {
+  // Pro Frage stehen die Antwortmöglichkeiten gemischt da; a zeigt aufs Original.
+  const questions = shuffle(QUIZ_FRAGEN).slice(0, 10);
+  let i = 0, score = 0, locked = false;
+  const qEl = el("div", { class: "quiz-question quiz-knowledge" });
+  const optWrap = el("div", { class: "choices" });
+  const feedback = el("p", { class: "quiz-feedback" });
+  const info = el("p", { class: "muted center" });
+  const progress = el("p", { class: "muted" });
+
+  const draw = () => {
+    locked = false;
+    const frage = questions[i];
+    const correct = frage.o[frage.a];
+    const options = shuffle(frage.o);
+    qEl.textContent = frage.q;
+    info.textContent = "";
+    feedback.textContent = "";
+    optWrap.replaceChildren(...options.map((opt) =>
+      el("button", { class: "btn btn-choice", onclick: () => {
+        if (locked) return;
+        locked = true;
+        if (opt === correct) { score++; feedback.textContent = "✅ Richtig!"; feedback.className = "quiz-feedback success"; }
+        else { feedback.textContent = `❌ Richtig wäre: ${correct}`; feedback.className = "quiz-feedback error"; }
+        if (frage.info) info.textContent = "💡 " + frage.info;
+        i++;
+        if (i >= questions.length) {
+          const isBest = saveBest("Wissens-Quiz, von 10", score);
+          setTimeout(() => result(container, "lernen", `${score} von 10 richtig!`, score >= 8 ? "🌍 Du bist ein wandelndes Lexikon!" : score >= 5 ? "👍 Ordentlich — beim nächsten Mal mehr!" : "💪 Jede Frage macht dich schlauer!", isBest), 2200);
+          return;
+        }
+        setTimeout(draw, 2200);
+      } }, opt),
+    ));
+    progress.textContent = `Frage ${i + 1} von ${questions.length} · Richtig: ${score}`;
+  };
+  draw();
+  container.replaceChildren(
+    el("section", { class: "panel panel-narrow" }, el("h3", {}, "🌍 Wissens-Quiz"), qEl, optWrap, feedback, info, progress,
+      el("button", { class: "btn btn-ghost btn-small", onclick: () => route(container, ["lernen"]) }, "Abbrechen"),
+    ),
   );
 }
 

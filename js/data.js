@@ -58,6 +58,24 @@ export const RECIPES = [
   { name: "Schupfnudel-Pfanne", emoji: "🥟", zeit: 20, tags: ["vegetarisch", "schnell"],
     zutaten: [["Schupfnudeln (Kühlregal)", "800 g"], ["Sauerkraut oder Spinat", "400 g"], ["Zwiebel", "1"], ["Butter", "2 EL"], ["Schmand", "150 g"]],
     schritte: ["Schupfnudeln in Butter goldbraun braten.", "Zwiebel und Sauerkraut/Spinat dazu, heiß werden lassen.", "Mit Schmand und Pfeffer servieren."] },
+  { name: "One-Pot-Nudeln Tomate-Mozzarella", emoji: "🍲", zeit: 20, tags: ["vegetarisch", "schnell"],
+    zutaten: [["Nudeln (kurze Sorte)", "500 g"], ["Gehackte Tomaten", "800 g"], ["Gemüsebrühe", "500 ml"], ["Mozzarella", "2 Kugeln"], ["Zwiebel", "1"], ["Basilikum", "optional"]],
+    schritte: ["Zwiebel anbraten, Nudeln, Tomaten und Brühe in EINEN Topf.", "10–12 Min. köcheln, oft umrühren, bis die Nudeln gar sind.", "Mozzarella in Stücken unterheben, schmelzen lassen — fertig, nur ein Topf zu spülen!"] },
+  { name: "Linsensuppe", emoji: "🍛", zeit: 40, tags: ["vegetarisch", "klassiker"],
+    zutaten: [["Tellerlinsen", "300 g"], ["Kartoffeln", "300 g"], ["Möhren", "2"], ["Lauch", "1/2 Stange"], ["Gemüsebrühe", "1,5 l"], ["Essig & Senf", "zum Abschmecken"], ["Würstchen (optional)", "4"]],
+    schritte: ["Gemüse würfeln und mit den Linsen in der Brühe ca. 30 Min. kochen.", "Mit einem Schuss Essig, Senf, Salz und Pfeffer abschmecken (macht den Geschmack!).", "Wer mag: Würstchenscheiben darin erwärmen."] },
+  { name: "Ofen-Hähnchenschenkel mit Gemüse", emoji: "🍗", zeit: 55, tags: ["klassiker"],
+    zutaten: [["Hähnchenschenkel", "4"], ["Kartoffeln", "800 g"], ["Paprika", "2"], ["Zucchini", "1"], ["Olivenöl", "4 EL"], ["Paprikapulver, Rosmarin", ""]],
+    schritte: ["Gemüse und Kartoffeln grob schneiden, mit Öl und Gewürzen aufs Blech.", "Gewürzte Schenkel obendrauf legen.", "Bei 200 °C ca. 45 Min. backen — das Fleisch würzt das Gemüse von ganz allein."] },
+  { name: "Quesadillas", emoji: "🫓", zeit: 15, tags: ["vegetarisch", "schnell"],
+    zutaten: [["Tortilla-Wraps", "8"], ["Geriebener Käse", "250 g"], ["Mais (Dose)", "1"], ["Paprika", "1"], ["Frühlingszwiebeln", "2"], ["Salsa oder Joghurt-Dip", "zum Tunken"]],
+    schritte: ["Wraps zur Hälfte mit Käse, Mais und kleingeschnittenem Gemüse belegen, zuklappen.", "In der Pfanne ohne Fett pro Seite 2–3 Min. goldbraun braten.", "In Ecken schneiden und dippen — perfekt auch für Reste aller Art."] },
+  { name: "Kürbissuppe", emoji: "🎃", zeit: 35, tags: ["vegetarisch"],
+    zutaten: [["Hokkaido-Kürbis", "1 (ca. 1 kg)"], ["Kartoffeln", "2"], ["Zwiebel", "1"], ["Gemüsebrühe", "800 ml"], ["Sahne oder Kokosmilch", "150 ml"], ["Kürbiskerne", "zum Bestreuen"]],
+    schritte: ["Hokkaido waschen (Schale kann dran!), würfeln, mit Zwiebel und Kartoffeln anbraten.", "Brühe angießen, 20 Min. weich kochen, fein pürieren.", "Sahne einrühren, abschmecken, mit Kernen servieren."] },
+  { name: "Apfel-Crumble", emoji: "🍎", zeit: 35, tags: ["vegetarisch", "süß"],
+    zutaten: [["Äpfel", "5"], ["Mehl", "150 g"], ["Butter (kalt)", "100 g"], ["Zucker", "80 g"], ["Zimt", "1 TL"], ["Haferflocken", "50 g"], ["Vanilleeis", "zum Servieren"]],
+    schritte: ["Äpfel würfeln, mit Zimt in eine Auflaufform geben.", "Mehl, Butter, Zucker und Haferflocken zu Streuseln verkneten, darüber verteilen.", "Bei 180 °C ca. 25 Min. goldbraun backen — am besten lauwarm mit Eis."] },
 ];
 
 // ---------- Brief-Vorlagen ----------
@@ -207,6 +225,52 @@ Herzliche Grüße aus ${"[Hausnummer/Etage]"}
 [Eure Namen]`;
     },
   },
+  {
+    id: "krankmeldung", emoji: "🤒", title: "Krankmeldung (Arbeitgeber)",
+    fields: [
+      { id: "firma", label: "Arbeitgeber / Ansprechperson", ph: "Personalabteilung der Muster GmbH" },
+      { id: "seit", label: "Krank seit", ph: "heute, 11.06." },
+      { id: "dauer", label: "Voraussichtlich bis", ph: "einschließlich Freitag, 13.06." },
+      { id: "vertretung", label: "Übergabe / Vertretung (optional)", ph: "Frau Klein übernimmt meine Termine" },
+    ],
+    build: (v) => `Krankmeldung
+
+Sehr geehrte Damen und Herren,
+
+hiermit melde ich mich ab ${v.seit} arbeitsunfähig krank. Voraussichtlich werde ich ${v.dauer} ausfallen; sollte sich daran etwas ändern, informiere ich Sie umgehend.
+
+Die ärztliche Arbeitsunfähigkeitsbescheinigung reiche ich nach bzw. sie liegt der Krankenkasse elektronisch vor.${v.vertretung ? `
+
+Zur Übergabe: ${v.vertretung}.` : ""}
+
+Mit freundlichen Grüßen
+[Name]
+
+💡 Tipp: Die Krankmeldung muss VOR Arbeitsbeginn beim Arbeitgeber sein — im Zweifel zusätzlich kurz anrufen.`,
+  },
+  {
+    id: "widerruf", emoji: "↩️", title: "Widerruf (Online-Kauf)",
+    fields: [
+      { id: "firma", label: "Händler", ph: "Online-Shop XY GmbH" },
+      { id: "produkt", label: "Artikel", ph: "Bluetooth-Lautsprecher „BoomBox“" },
+      { id: "bestellung", label: "Bestellt am / Bestellnummer", ph: "05.06.2026, Bestell-Nr. 12345" },
+      { id: "erhalten", label: "Erhalten am", ph: "09.06.2026" },
+    ],
+    build: (v) => `${v.firma}
+
+Widerruf meiner Bestellung ${v.bestellung}
+
+Sehr geehrte Damen und Herren,
+
+hiermit widerrufe ich den von mir abgeschlossenen Kaufvertrag über ${v.produkt} (Bestellung: ${v.bestellung}, erhalten am ${v.erhalten}).
+
+Bitte bestätigen Sie den Eingang dieses Widerrufs und teilen Sie mir mit, wie die Rücksendung ablaufen soll. Den Kaufpreis erstatten Sie bitte auf das ursprünglich verwendete Zahlungsmittel.
+
+Mit freundlichen Grüßen
+[Name, Anschrift]
+
+💡 Tipp: Bei Online-Käufen gilt in der Regel ein 14-tägiges Widerrufsrecht ab Erhalt der Ware — Frist im Blick behalten und Versandbeleg aufheben.`,
+  },
 ];
 
 // ---------- Checklisten-Vorlagen ----------
@@ -263,6 +327,30 @@ export const CHECKLISTS = [
       { title: "Regelmäßig prüfen", items: ["Rauchmelder-Test (1× im Monat Knopf drücken)", "Erste-Hilfe-Kasten auffüllen", "Taschenlampe & Ersatzbatterien", "Feuerlöscher/Löschdecke in der Küche", "Wichtige Dokumente an einem Ort"] },
     ],
   },
+  {
+    id: "klassenfahrt", emoji: "🚌", title: "Klassenfahrt packen",
+    groups: [
+      { title: "Unbedingt (Eltern-Check!)", items: ["Krankenkassenkarte & Impfpass-Kopie", "Einverständniserklärungen unterschrieben", "Notfall-Telefonnummern-Zettel in den Koffer", "Taschengeld (abgezählt, in Portionen)", "Medikamente mit Anleitung für die Lehrkraft", "Lunchpaket & Trinkflasche für die Fahrt"] },
+      { title: "Kleidung", items: ["Unterwäsche & Socken (Tage + 2)", "T-Shirts & Pullover", "Regenjacke (immer!)", "Feste Schuhe + Hausschuhe", "Schlafanzug", "Sportsachen, falls verlangt"] },
+      { title: "Sonstiges", items: ["Kulturbeutel mit allem Drum und Dran", "Handtuch", "Kleines Spiel / Karten für den Abend", "Buch oder Hörspiel", "Müdes Kuscheltier (unten im Koffer, psst)", "Beutel für Schmutzwäsche"] },
+    ],
+  },
+  {
+    id: "camping", emoji: "⛺", title: "Camping-Wochenende",
+    groups: [
+      { title: "Schlafen & Wohnen", items: ["Zelt (vorher einmal probeaufbauen!)", "Heringe, Hammer, Ersatzschnur", "Isomatten / Luftmatratzen + Pumpe", "Schlafsäcke (Temperatur checken)", "Campingstühle & -tisch", "Stirnlampen + Ersatzbatterien"] },
+      { title: "Küche", items: ["Gaskocher + Gaskartuschen", "Töpfe, Pfanne, Brettchen, Messer", "Geschirr & Besteck (bruchfest)", "Spülschüssel, Spülmittel, Lappen", "Kühlbox mit Akkus", "Müllbeutel", "Wasserkanister"] },
+      { title: "Gut zu haben", items: ["Verlängerungsleine & Panzertape (repariert ALLES)", "Erste-Hilfe-Set & Zeckenzange", "Mückenspray & Sonnencreme", "Regenplane / Tarp", "Spiele für den Abend, Taschenmesser", "Feuchttücher (Gold wert)"] },
+    ],
+  },
+  {
+    id: "weihnachten", emoji: "🎄", title: "Entspannte Weihnachten",
+    groups: [
+      { title: "Bis 1. Advent", items: ["Geschenkliste schreiben (wer bekommt was?)", "Budget festlegen", "Adventskalender besorgen/befüllen", "Termine klären: Wer feiert wann wo?", "Bastel-/Wunschzettel-Nachmittag mit den Kindern"] },
+      { title: "Bis 3. Advent", items: ["Geschenke kaufen oder basteln", "Geschenkpapier & Klebeband checken", "Weihnachtskarten / Grüße verschicken", "Festtagsessen planen + Einkaufsliste", "Baum bestellen oder Kauf einplanen"] },
+      { title: "Letzte Woche", items: ["Geschenke einpacken (Versteck nicht vergessen!)", "Großeinkauf erledigen (nicht am 23.!)", "Baum aufstellen & schmücken", "Plätzchen backen", "Akkus & Batterien für Geschenke besorgen", "Einen Abend NICHTS planen — Punsch & Füße hoch 🎄"] },
+    ],
+  },
 ];
 
 // ---------- Englisch-Vokabeln (5./6. Klasse) ----------
@@ -284,4 +372,54 @@ export const VOCAB_SETS = [
     id: "zuhause", emoji: "🏠", title: "Zuhause / At home",
     words: [["kitchen", "Küche"], ["bathroom", "Badezimmer"], ["bedroom", "Schlafzimmer"], ["living room", "Wohnzimmer"], ["garden", "Garten"], ["stairs", "Treppe"], ["window", "Fenster"], ["door", "Tür"], ["table", "Tisch"], ["chair", "Stuhl"], ["cupboard", "Schrank"], ["fridge", "Kühlschrank"], ["mirror", "Spiegel"], ["carpet", "Teppich"], ["lamp", "Lampe"], ["key", "Schlüssel"]],
   },
+  {
+    id: "koerper", emoji: "💪", title: "Körper / Body",
+    words: [["head", "Kopf"], ["hair", "Haare"], ["eye", "Auge"], ["ear", "Ohr"], ["nose", "Nase"], ["mouth", "Mund"], ["tooth", "Zahn"], ["shoulder", "Schulter"], ["arm", "Arm"], ["hand", "Hand"], ["finger", "Finger"], ["leg", "Bein"], ["knee", "Knie"], ["foot", "Fuß"], ["back", "Rücken"], ["tummy", "Bauch"]],
+  },
+  {
+    id: "freizeit", emoji: "🎮", title: "Freizeit / Free time",
+    words: [["to play", "spielen"], ["to read", "lesen"], ["to swim", "schwimmen"], ["to ride a bike", "Fahrrad fahren"], ["to draw", "zeichnen"], ["to sing", "singen"], ["to dance", "tanzen"], ["hobby", "Hobby"], ["football", "Fußball"], ["game", "Spiel"], ["music", "Musik"], ["movie", "Film"], ["playground", "Spielplatz"], ["holiday", "Ferien/Urlaub"], ["friend", "Freund/in"], ["fun", "Spaß"]],
+  },
+];
+
+// ---------- Wissens-Quiz (für Kinder ca. 9–13) ----------
+// a = Index der richtigen Antwort, info = kurze Erklärung danach.
+
+export const QUIZ_FRAGEN = [
+  { q: "Welcher Planet ist der größte in unserem Sonnensystem?", o: ["Jupiter", "Saturn", "Erde", "Mars"], a: 0, info: "In Jupiter würde die Erde über 1300-mal hineinpassen!" },
+  { q: "Wie viele Herzen hat ein Oktopus?", o: ["3", "1", "2", "8"], a: 0, info: "Zwei pumpen Blut durch die Kiemen, eines durch den Körper." },
+  { q: "Was ist das schnellste Landtier der Welt?", o: ["Gepard", "Löwe", "Pferd", "Strauß"], a: 0, info: "Bis zu 110 km/h — aber nur für wenige Sekunden." },
+  { q: "Wie lange braucht das Licht von der Sonne zur Erde?", o: ["Etwa 8 Minuten", "1 Sekunde", "12 Stunden", "3 Tage"], a: 0, info: "Rund 150 Millionen Kilometer in 8 Minuten und 20 Sekunden." },
+  { q: "Welches ist das längste Fluss der Welt (nach den meisten Messungen)?", o: ["Der Nil", "Der Rhein", "Die Donau", "Der Mississippi"], a: 0, info: "Der Nil ist etwa 6650 km lang — der Amazonas ist knapp dahinter und führt viel mehr Wasser." },
+  { q: "Woraus besteht ein Regenbogen?", o: ["Sonnenlicht, das in Wassertropfen gebrochen wird", "Buntem Nebel", "Gefärbten Wolken", "Polarlicht"], a: 0, info: "Jeder Tropfen wirkt wie ein winziges Prisma und zerlegt das Licht in Farben." },
+  { q: "Wie viele Knochen hat ein erwachsener Mensch ungefähr?", o: ["206", "86", "412", "1000"], a: 0, info: "Babys haben sogar über 300 — viele wachsen später zusammen." },
+  { q: "Welches Tier kann seinen Kopf fast komplett herumdrehen?", o: ["Die Eule", "Die Katze", "Der Hund", "Das Pferd"], a: 0, info: "Eulen drehen den Kopf bis zu 270 Grad — ihre Augen sind nämlich unbeweglich." },
+  { q: "Was ist die Hauptstadt von Frankreich?", o: ["Paris", "Lyon", "Marseille", "Brüssel"], a: 0, info: "Paris liegt an der Seine und hat über 2 Millionen Einwohner." },
+  { q: "Wie nennt man ein Tier, das nur Pflanzen frisst?", o: ["Pflanzenfresser (Herbivore)", "Fleischfresser (Karnivore)", "Allesfresser (Omnivore)", "Insektenfresser"], a: 0, info: "Kühe, Pferde und Kaninchen sind typische Pflanzenfresser." },
+  { q: "Welches Gas atmen wir hauptsächlich ein, um zu leben?", o: ["Sauerstoff", "Kohlendioxid", "Helium", "Wasserstoff"], a: 0, info: "Die Luft besteht aber zum größten Teil aus Stickstoff (78 %)." },
+  { q: "Wie viele Minuten hat ein ganzer Tag?", o: ["1440", "960", "1200", "2400"], a: 0, info: "24 Stunden × 60 Minuten = 1440 Minuten." },
+  { q: "Welcher Kontinent ist der kälteste?", o: ["Antarktis", "Europa", "Asien", "Australien"], a: 0, info: "Dort wurden schon −89 °C gemessen — kälter als jede Tiefkühltruhe." },
+  { q: "Was passiert mit Wasser bei 100 °C?", o: ["Es kocht und verdampft", "Es gefriert", "Es wird schwerer", "Nichts"], a: 0, info: "Auf hohen Bergen kocht Wasser übrigens schon bei niedrigeren Temperaturen." },
+  { q: "Welches Tier ist KEIN Säugetier?", o: ["Pinguin", "Delfin", "Fledermaus", "Wal"], a: 0, info: "Pinguine sind Vögel — Delfine und Wale dagegen echte Säugetiere." },
+  { q: "Wie heißt der höchste Berg der Erde?", o: ["Mount Everest", "Zugspitze", "Mont Blanc", "Kilimandscharo"], a: 0, info: "8849 Meter hoch — die Zugspitze schafft nur 2962." },
+  { q: "Was ist ein Vulkan?", o: ["Ein Berg, aus dem geschmolzenes Gestein kommen kann", "Ein erloschener Stern", "Ein tiefer See", "Eine Wüstenform"], a: 0, info: "Das flüssige Gestein heißt unterirdisch Magma — draußen Lava." },
+  { q: "Wie viele Beine hat eine Spinne?", o: ["8", "6", "10", "12"], a: 0, info: "Insekten haben 6 Beine — deshalb sind Spinnen keine Insekten." },
+  { q: "Welche Farben haben die Ampeln in Deutschland von oben nach unten?", o: ["Rot, Gelb, Grün", "Grün, Gelb, Rot", "Rot, Grün, Gelb", "Gelb, Rot, Grün"], a: 0, info: "Rot oben — damit man es auch sieht, wenn die Sonne blendet." },
+  { q: "Was machen Bienen mit Nektar?", o: ["Sie machen daraus Honig", "Sie bauen damit Waben", "Sie füttern damit Vögel", "Sie trinken ihn nur"], a: 0, info: "Für ein Glas Honig fliegen Bienen zusammen etwa dreimal um die Erde." },
+  { q: "Wie heißt unsere Galaxie?", o: ["Milchstraße", "Andromeda", "Orion", "Alpha Centauri"], a: 0, info: "Sie enthält über 100 Milliarden Sterne — unsere Sonne ist nur einer davon." },
+  { q: "Welches Organ pumpt das Blut durch deinen Körper?", o: ["Das Herz", "Die Lunge", "Die Leber", "Das Gehirn"], a: 0, info: "Es schlägt etwa 100.000-mal am Tag — ganz ohne Pause." },
+  { q: "Was ist der größte Ozean der Erde?", o: ["Der Pazifik", "Der Atlantik", "Der Indische Ozean", "Das Mittelmeer"], a: 0, info: "Der Pazifik ist größer als alle Kontinente zusammen." },
+  { q: "Warum schwimmt Eis auf Wasser?", o: ["Es ist leichter (weniger dicht) als Wasser", "Es ist kälter als Wasser", "Es ist härter als Wasser", "Wegen des Windes"], a: 0, info: "Beim Gefrieren dehnt sich Wasser aus — deshalb schwimmen Eiswürfel oben." },
+  { q: "Wie nennt man Tiere, die im Winter schlafen?", o: ["Winterschläfer", "Frostbeulen", "Schneetiere", "Polartiere"], a: 0, info: "Igel und Murmeltiere senken dabei sogar ihre Körpertemperatur stark ab." },
+  { q: "Welches Land hat die meisten Einwohner?", o: ["Indien", "China", "USA", "Russland"], a: 0, info: "Indien hat China vor wenigen Jahren überholt — über 1,4 Milliarden Menschen." },
+  { q: "Was ist ein Komet?", o: ["Ein Brocken aus Eis und Staub mit leuchtendem Schweif", "Ein kleiner Planet", "Eine Sternschnuppe", "Ein Mond"], a: 0, info: "Der Schweif entsteht, wenn die Sonne das Eis verdampfen lässt." },
+  { q: "Wie viele Spieler stehen beim Fußball pro Team auf dem Platz?", o: ["11", "10", "12", "9"], a: 0, info: "10 Feldspieler plus Torwart — seit über 150 Jahren." },
+  { q: "Welcher Stoff macht Pflanzenblätter grün?", o: ["Chlorophyll", "Karotin", "Zucker", "Sauerstoff"], a: 0, info: "Damit fangen Pflanzen Sonnenlicht ein und machen daraus Energie — Fotosynthese!" },
+  { q: "Wie lange dauert es, bis die Erde sich einmal um die Sonne gedreht hat?", o: ["Ein Jahr", "Ein Tag", "Ein Monat", "Eine Woche"], a: 0, info: "Genau genommen 365 Tage und etwa 6 Stunden — deshalb gibt es Schaltjahre." },
+  { q: "Was ist das größte Tier, das jemals gelebt hat?", o: ["Der Blauwal", "Der T-Rex", "Der Elefant", "Das Mammut"], a: 0, info: "Bis zu 33 Meter lang — größer als jeder Dinosaurier." },
+  { q: "Woher kommt der Strom aus einer Solarzelle?", o: ["Aus Sonnenlicht", "Aus Wind", "Aus Wasser", "Aus Erdwärme"], a: 0, info: "Solarzellen wandeln Licht direkt in elektrischen Strom um." },
+  { q: "Welcher Ritter-Begriff bezeichnet die Eisenkleidung?", o: ["Rüstung", "Wappen", "Lanze", "Banner"], a: 0, info: "Eine volle Ritterrüstung wog 20–30 Kilo — wie ein voller Reisekoffer." },
+  { q: "Wie nennt man gefrorenen Regen, der als Kugeln vom Himmel fällt?", o: ["Hagel", "Schnee", "Graupel", "Tau"], a: 0, info: "Hagelkörner können in Gewitterwolken mehrmals hoch- und runtergeschleudert werden, bis sie schwer genug sind." },
+  { q: "Was zeigt ein Kompass an?", o: ["Die Himmelsrichtung Norden", "Die Uhrzeit", "Die Temperatur", "Die Höhe"], a: 0, info: "Die Nadel richtet sich am Magnetfeld der Erde aus." },
+  { q: "Welches dieser Tiere kann am längsten ohne Wasser auskommen?", o: ["Das Kamel", "Das Pferd", "Der Hund", "Die Kuh"], a: 0, info: "Kamele speichern aber kein Wasser im Höcker — da ist Fett drin!" },
 ];
