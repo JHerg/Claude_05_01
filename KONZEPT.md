@@ -1,143 +1,126 @@
-# Claude 5 Studio — Konzept
+# Familien-Studio — Konzept
 
-Ein browserbasiertes „Capability-Cockpit" für **Claude Fable 5**, das als rein statische
-Single-Page-App über **GitHub Pages** veröffentlicht wird. Kein Backend, kein Server —
-die App spricht die Anthropic-API direkt aus dem Browser an (der Nutzer bringt seinen
-eigenen API-Key mit, „BYOK").
+Eine „familientaugliche" Web-App für **GitHub Pages**: komplett statisch, ohne Server,
+ohne Build-Schritt. Eine gemeinsame Hülle (Startseite, Eltern-Bereich, Kostenanzeige)
+mit **zwei Welten**:
+
+1. **🐉 Abenteuer-Maschine** — interaktives Text-Adventure für Kinder (ca. 10–12 Jahre)
+2. **🏠 Alltagshelfer** — fünf praktische Module für den Familienalltag
+
+Angetrieben von **Claude Fable 5** (`claude-fable-5`), direkt aus dem Browser
+(„BYOK": der Nutzer hinterlegt seinen eigenen API-Key, der das Gerät nur Richtung
+`api.anthropic.com` verlässt).
 
 ---
 
 ## 1. Was ist das Besondere an Claude 5 (Fable 5)?
 
-Claude Fable 5 (`claude-fable-5`) ist das erste Modell der neuen **Mythos-Klasse**,
-die oberhalb von Claude Opus angesiedelt ist. Die wichtigsten Eigenschaften:
+Claude Fable 5 ist das erste Modell der neuen **Mythos-Klasse** oberhalb von Claude Opus:
 
 | Eigenschaft | Wert / Verhalten |
 |---|---|
 | Modell-ID | `claude-fable-5` |
-| Kontextfenster | **1 Million Token** (Standard = Maximum) |
-| Max. Output | **128K Token** pro Request (Streaming nötig) |
+| Kontextfenster | 1 Million Token (Standard = Maximum) |
+| Max. Output | 128K Token pro Request (Streaming nötig) |
 | Preis | $10 / $50 pro 1M Token (Input/Output) |
-| Thinking | **Immer an** (adaptiv) — `thinking`-Parameter weglassen; `disabled` oder `budget_tokens` geben 400 |
-| Reasoning-Tiefe | Über `output_config.effort`: `low` → `xhigh` → `max` |
-| Protected Thinking | Roher Gedankengang wird nie ausgegeben; `display: "summarized"` liefert lesbare Zusammenfassungen |
-| Tokenizer | **Neu** — gleicher Inhalt ≈ 30 % mehr Token als bei Opus-Modellen |
-| Sampling | `temperature`/`top_p`/`top_k` entfernt (400) — Steuerung per Prompt |
-| Prefill | Assistant-Prefill nicht mehr unterstützt → Structured Outputs (`output_config.format`) |
-| Safety | Klassifikatoren können mit `stop_reason: "refusal"` ablehnen; server-seitige **Fallbacks** auf `claude-opus-4-8` möglich (Beta) |
-| Datenhaltung | Erfordert 30-Tage-Retention (kein Zero-Data-Retention) |
-| Stärken | Langzeit-agentisches Arbeiten (Einzelturns von mehreren Minuten), parallele Sub-Agents, Memory, hochauflösende Vision, Code-Review/Debugging, Enterprise-Deliverables |
+| Thinking | Immer an (adaptiv) — `thinking`-Parameter weglassen; `disabled`/`budget_tokens` geben 400 |
+| Reasoning-Tiefe | `output_config.effort`: `low` → `xhigh` → `max` |
+| Protected Thinking | Roher Gedankengang wird nie ausgegeben; Zusammenfassungen via `display: "summarized"` |
+| Tokenizer | Neu — gleicher Inhalt ≈ 30 % mehr Token als bei Opus |
+| Sampling | `temperature`/`top_p`/`top_k` entfernt — Steuerung per Prompt |
+| Prefill | Nicht unterstützt → Structured Outputs (`output_config.format`) |
+| Safety | `stop_reason: "refusal"` möglich; server-seitige Fallbacks auf Opus 4.8 (Beta) |
+| Datenhaltung | 30-Tage-Retention erforderlich (kein ZDR) |
+| Stärken | Langzeit-Kohärenz, agentisches Arbeiten, Vision, kreatives Schreiben, Memory |
 
-**Kurz:** Fable 5 ist auf lange, autonome, mehrstufige Arbeit optimiert — nicht nur auf
-schnelle Einzelantworten. Genau das soll das Tool sichtbar machen.
-
----
-
-## 2. Das Tool: „Claude 5 Studio"
-
-Eine SPA mit mehreren Modulen (Tabs), die jeweils eine Fable-5-Fähigkeit erlebbar machen:
-
-### Modul A — Chat & Thinking-Viewer
-- Streaming-Chat (SSE) mit Markdown-Rendering.
-- **Thinking-Panel**: zeigt die zusammengefassten Reasoning-Blöcke
-  (`thinking: {type: "adaptive", display: "summarized"}`) live neben der Antwort.
-- **Effort-Regler** (`low`/`medium`/`high`/`xhigh`/`max`) mit Live-Vergleich:
-  gleiche Frage, unterschiedliche Effort-Stufen nebeneinander (Latenz, Token, Qualität).
-
-### Modul B — Agent-Arena (Tool Use im Browser)
-- Client-seitige Tools, die **direkt im Browser** laufen und im Agentic Loop
-  visualisiert werden (Timeline: Tool-Call → Ergebnis → nächster Schritt):
-  - `run_javascript` — sandboxed eval in einem Web Worker
-  - `render_html` — Live-Preview in einem sandboxed iframe (Claude baut UI-Prototypen)
-  - `fetch_url` — Abruf über öffentliche CORS-Proxies (optional)
-  - `local_storage_memory` — Memory-Tool-Backend auf localStorage (persistente
-    Notizen über Sessions hinweg → zeigt Fable 5s Memory-Stärke)
-- Human-in-the-loop: jeder Tool-Call kann zur Bestätigung angehalten werden.
-
-### Modul C — Vision Lab
-- Drag & Drop für Bilder und PDFs (Base64-Blöcke).
-- Demo der hochauflösenden Vision (bis 2576 px Langkante): Diagramm-Transkription,
-  Screenshot-Analyse, Dokumentenverständnis mit Zitaten.
-
-### Modul D — Structured-Output-Designer
-- Visueller JSON-Schema-Builder (oder Zod-Definition) → `output_config.format`.
-- Validiertes, garantiert parsebares JSON als Ergebnis, mit Schema-Diff-Ansicht.
-- Strict Tool Use Demo (`strict: true`).
-
-### Modul E — Token- & Kosten-Inspektor
-- `count_tokens`-Endpoint live: zählt Prompt-Token **unter beiden Tokenizern**
-  (`input_tokens` vs. `input_tokens_prior_tokenizer`) — macht den ~30-%-Effekt
-  des neuen Tokenizers sichtbar.
-- Live-Kostenmeter pro Konversation (inkl. Cache-Read/Write aus `usage`).
-- Prompt-Caching-Visualisierung: zeigt `cache_creation_input_tokens` /
-  `cache_read_input_tokens` pro Turn als Balkendiagramm.
-
-### Modul F — Refusal- & Fallback-Demo
-- Sauberes Handling von `stop_reason: "refusal"` inkl. `stop_details.category`.
-- Optional: server-seitiger Fallback auf `claude-opus-4-8`
-  (Beta-Header `server-side-fallback-2026-06-01`) mit Anzeige der
-  `fallback`-Blöcke und `usage.iterations`.
-
-### Modul G — Langzeit-Session
-- Lange Konversationen mit **Compaction** (Beta `compact-2026-01-12`):
-  Compaction-Blöcke werden korrekt zurückgereicht und im UI markiert
-  („Hier wurde Kontext zusammengefasst").
-- Fortschritts-UX für minutenlange Turns (Fable-5-typisch): Streaming,
-  Heartbeat-Anzeige, abbrechbar.
-
-### Architektur & Sicherheit (wichtig für GitHub Pages)
-- **BYOK**: API-Key wird nur in `localStorage` gehalten, nie ins Repo committet,
-  nie an Dritte gesendet. Deutlicher Hinweis: nur für persönliche Nutzung.
-- Direkter Browser-Zugriff auf die Anthropic-API via CORS-Opt-in
-  (SDK-Option `dangerouslyAllowBrowser: true` bzw. Header
-  `anthropic-dangerous-direct-browser-access: true`).
-- Alles Übrige (Konversationen, Memory, Einstellungen) ebenfalls in
-  `localStorage`/`IndexedDB` — die App ist komplett offline-host-bar.
+**Genau diese Stärken nutzt die App:** lange, konsistente Spiel-Kampagnen
+(Langzeit-Kohärenz + 1M Kontext), garantiert parsebarer Spielzustand
+(Structured Outputs), Brief-/Hausaufgaben-Fotos (Vision), kindgerechtes
+kreatives Erzählen und kontrollierbare Kosten (Effort + Prompt Caching).
 
 ---
 
-## 3. Empfohlener Implementierungs-Stack
+## 2. Welt 1: Die Abenteuer-Maschine 🐉
 
-| Baustein | Empfehlung | Warum |
+Claude ist Spielleiter eines Text-Adventures — als echtes Spiel, nicht als Chat:
+
+- **6 Szenarien**: Drachenfeuer (Fantasy), Sternenbasis 7 (Sci-Fi), Detektivbüro
+  Blitz (Krimi), Die vergessene Insel (Schatzsuche), Pokal der Legenden
+  (Fußball + Magie) — und „Eigene Idee", bei der das Kind die Welt selbst bestimmt.
+- **Spiel-HUD statt Chatfenster**: Jeder Spielzug kommt per Structured Output als
+  JSON (Erzähltext, 3 Auswahlmöglichkeiten, Herzen, Inventar, Quest, Ort) —
+  die App rendert daraus Herzen ❤️, Inventar-Chips 🎒 und das Quest-Ziel 🎯.
+- **Claude malt die Szenen selbst**: Zu neuen Schauplätzen liefert das Modell
+  eine Inline-SVG-Illustration (Comic-Stil, 400×240), die sanitisiert
+  (DOMPurify, SVG-Profil) angezeigt wird. Kein Bildgenerator nötig.
+- **Würfelproben**: Bei riskanten Aktionen fordert Claude eine Probe an; die App
+  zeigt einen animierten Würfel, das Ergebnis fließt zurück in die Geschichte.
+- **Eigene Zeichnung als Held** (Vision): Foto der selbst gemalten Figur hochladen —
+  Claude beschreibt den Helden im Spiel genau so, wie er auf dem Bild aussieht.
+- **Versteckte Lernrätsel** (optional): ca. jede 3.–4. Runde ein Zahlenschloss,
+  ein Geheimcode oder ein Englisch-Zauberspruch.
+- **Kindersicherheit per System-Prompt**: altersgerecht, gewaltarm, kein Horror,
+  Scheitern ohne endgültiges Game Over, Happy-End-Pflicht für den Questabschluss.
+- **Spielstände** in localStorage (bis 12 Slots), wochenlange Kampagnen möglich;
+  der Nachrichtenverlauf wird bei Bedarf gekürzt (erste Nachrichten + letzte 60 Züge).
+
+## 3. Welt 2: Der Alltagshelfer 🏠
+
+Fünf geführte Module (Formular → Ergebnis → Nachfragen-Chat), Sitzung pro Modul
+wird lokal gemerkt:
+
+| Modul | Was es tut |
+|---|---|
+| 📨 **Brief-Versteher** | Amtspost/Versicherung/Schulbrief fotografieren → feste Struktur: „Worum geht es / Das musst du tun / Fristen & Kosten / Gut zu wissen" + Antwortentwurf auf Wunsch. Mit Hinweis: keine Rechtsberatung. |
+| 🍳 **Koch-Pilot** | Kühlschrankfoto oder Zutatenliste → 3 Rezepte oder Wochenplan (Mo–Fr) mit nach Abteilungen gruppierter, **abhakbarer** Einkaufsliste. |
+| 🧠 **Lern-Coach** | Hausaufgabe fotografieren → erklärt Schritt für Schritt, **ohne die Lösung zu verraten** (Leitfragen-Didaktik); alternativ Karteikarten oder Quiz-Modus mit Punktezählung. |
+| ✍️ **Schreibwerkstatt** | Entschuldigung, Kündigung, Reklamation, Glückwunsch, Einladung — versandfertig, mit Formalien (Fristen, Einschreiben-Hinweis) und Tonfall-Wahl. |
+| 🗓️ **Planer** | Kindergeburtstag, Urlaub, Packliste, Umzug → chronologische, abhakbare Checklisten mit Kostenschätzung. |
+
+## 4. Gemeinsame Hülle
+
+- **Eltern-Bereich** (optional PIN-geschützt): API-Key, Effort-Stufe
+  (Tempo/Kosten ↔ Gründlichkeit), **Tageslimit in $** (App pausiert bei
+  Erreichen), Kostenhistorie der letzten 7 Tage, „Alle Daten löschen".
+- **Live-Kostenschätzung** aus den `usage`-Feldern jeder Antwort
+  (inkl. Cache-Read/Write) als Badge in der Kopfzeile.
+- **Prompt Caching** über top-level `cache_control` — wachsende Spielverläufe
+  werden größtenteils aus dem Cache gelesen (~0,1× Preis).
+- **Fehler-UX**: verständliche deutsche Meldungen für 401/429/529,
+  Tageslimit und `refusal`; fehlgeschlagene Züge werden zurückgerollt
+  und sind per Knopf wiederholbar.
+
+---
+
+## 5. Technik
+
+| Baustein | Entscheidung | Warum |
 |---|---|---|
-| Build | **Vite + TypeScript** | Schnell, trivialer GitHub-Pages-Export (`base`-Option); alternativ: reines HTML + ES-Module ohne Build |
-| API-Zugriff | **`@anthropic-ai/sdk`** mit `dangerouslyAllowBrowser: true` | Offizielles SDK, Streaming-Helper (`messages.stream()`, `finalMessage()`), typisierte Fehler, Tool Runner |
-| Structured Outputs | **Zod** + `zodOutputFormat` aus dem SDK | Schema-Definition und Client-Validierung in einem |
-| Markdown | **marked** + **DOMPurify** | Rendering der Antworten, XSS-sicher |
-| Code-Highlighting | **highlight.js** oder **Shiki** | Codeblöcke im Chat |
-| Charts | **Chart.js** | Token-/Kosten-/Cache-Visualisierung |
-| JS-Sandbox | **Web Worker** + `iframe sandbox` | sichere Ausführung der Browser-Tools |
-| Persistenz | `localStorage` / **IndexedDB** (z. B. via `idb`) | Key, Sessions, Memory-Dateien |
-| Deployment | **GitHub Actions → GitHub Pages** (`actions/deploy-pages`) | Build & Deploy bei jedem Push auf `main` |
-| Entwicklung | **Claude Code** | Das Tool kann sich quasi selbst bauen |
+| Build | **Keiner** — pures HTML + ES-Module | GitHub Pages „Deploy from branch" genügt; kein Tooling für die Familie |
+| API | `fetch` + SSE-Parser direkt gegen `/v1/messages` | Kein SDK-Download nötig; Header `anthropic-dangerous-direct-browser-access: true` erlaubt Browser-Calls |
+| Modell | `claude-fable-5`, Streaming, `max_tokens: 16000` | Fable-5-Regeln beachtet: kein `thinking`-Param, kein Sampling, Effort via `output_config` |
+| Spielzustand | Structured Outputs (`output_config.format`, JSON-Schema) | Garantiert parsebares JSON für das HUD |
+| Markdown/SVG | marked + DOMPurify (CDN, mit Fallback) | XSS-sicheres Rendering, SVG-Profil für Szenenbilder |
+| Persistenz | localStorage | Key, Spielstände, Hub-Sitzungen, Kosten — alles lokal |
+| Deployment | GitHub Pages, `.nojekyll` | Statisch, relative Pfade, Hash-Routing |
 
-### Wichtige API-Parameter (Fable 5)
+### Dateien
 
-```ts
-const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
-
-const stream = client.messages.stream({
-  model: "claude-fable-5",
-  max_tokens: 64000,                                  // Streaming → großzügig
-  thinking: { type: "adaptive", display: "summarized" }, // sonst leere Thinking-Blöcke
-  output_config: { effort: "high" },                  // low | medium | high | xhigh | max
-  messages,
-  tools,                                              // Browser-Tools (Modul B)
-});
+```
+index.html        App-Hülle
+css/style.css     Zwei Themes (Papier / Nachtblau)
+js/main.js        Router, Startseite, Eltern-Bereich
+js/api.js         Anthropic-API: SSE-Streaming, Bild-Blöcke, Fehler, Kosten
+js/storage.js     Einstellungen, Spielstände, Sitzungen, Tageskosten
+js/ui.js          md()/safeSvg() sanitisiert, DOM-Helfer
+js/adventure.js   Abenteuer-Maschine (Szenarien, System-Prompt, HUD, Würfel)
+js/hub.js         Alltagshelfer (5 Module, generischer Runner)
 ```
 
-Zu beachten:
-- `thinking: {type: "disabled"}` und `budget_tokens` → 400. Entweder weglassen oder `adaptive`.
-- `temperature`/`top_p`/`top_k` → 400.
-- Vor dem Lesen von `content` immer `stop_reason === "refusal"` prüfen.
-- Thinking-Blöcke beim Fortsetzen der Konversation **unverändert** zurückgeben.
+## 6. Mögliche Ausbaustufen
 
----
-
-## 4. Ausbaustufen
-
-1. **MVP**: Modul A (Chat + Thinking + Effort) + Key-Management + Pages-Deploy.
-2. **V2**: Module B (Agent-Arena) und E (Token-Inspektor).
-3. **V3**: Vision Lab, Structured-Output-Designer, Refusal/Fallback, Compaction.
-4. **Optional**: PWA (offline UI), Share-Links (Konversation als URL-Fragment,
-   ohne Key), i18n (DE/EN).
+- **Vorlesen**: `speechSynthesis` für die Abenteuer-Texte (komplett offline im Browser).
+- **Mehrere Kinder-Profile** mit eigenen Spielständen.
+- **Teilen ohne Key**: Abenteuer-Protokoll als schön formatierte HTML-Seite exportieren.
+- **PWA**: Manifest + Service Worker, damit die App wie eine echte App installierbar ist.
+- **Server-seitiger Fallback** auf `claude-opus-4-8` bei `refusal` (Beta-Header).
