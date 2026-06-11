@@ -231,7 +231,8 @@ function renderPlay(container, saveId) {
       hints.push(`Die Lösung ist: <strong>${escapeHtml(answer)}</strong>`);
     } else if (!node.hints) {
       if (node.dice) {
-        hints.push("Hier entscheidet das Würfelglück — bei 4, 5 oder 6 klappt es. Und selbst wenn nicht: Es geht immer weiter, höchstens ein Herz ärmer.");
+        const t = node.dice.threshold || 4;
+        hints.push(`Hier entscheidet das Würfelglück — ab einer ${t} klappt es. Und selbst wenn nicht: Es geht immer weiter, höchstens ein Herz ärmer.`);
       } else {
         const lockedChoices = (node.choices || []).filter(
           (c) => (c.require || []).some((i) => !has(i)) && !(c.hideIf || []).some(has),
@@ -359,7 +360,7 @@ function renderPlay(container, saveId) {
           if (++ticks >= 12) {
             clearInterval(interval);
             const n = 1 + Math.floor(Math.random() * 6);
-            const success = n >= 4;
+            const success = n >= (node.dice.threshold || 4);
             die.textContent = `${DICE_FACES[n - 1]}  Eine ${n}! ${success ? "Geschafft! 🎉" : "Oh nein …"}`;
             sfx(success ? "win" : "fail");
             setTimeout(() => {
@@ -388,7 +389,8 @@ function renderPlay(container, saveId) {
     // --- Rätsel ---
     if (node.riddle) {
       const r = node.riddle;
-      showStory(`<p>🧩 <strong>Rätsel:</strong> ${escapeHtml(r.question)}</p>`);
+      const intro = node.text ? `<p>${renderText(node.text)}</p>` : "";
+      showStory(`${intro}<p>🧩 <strong>Rätsel:</strong> ${escapeHtml(r.question)}</p>`);
       const feedback = el("p", { class: "error", style: "min-height:1.5em" });
 
       const succeed = () => {

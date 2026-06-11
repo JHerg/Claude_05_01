@@ -60,7 +60,7 @@ const DRACHENFEUER = {
       ],
       choices: [
         { label: "🌲 In den Feuerwald (roter Kristall)", to: "fw1", hideIf: ["k_rot"] },
-        { label: "🌊 Zum See der Spiegel (blauer Kristall)", to: "se1", hideIf: ["k_blau"] },
+        { label: "🌊 Zum See der Spiegel (blauer Kristall)", to: "se0", hideIf: ["k_blau"] },
         { label: "⛰️ In die Wolkenberge (goldener Kristall)", to: "wb1", hideIf: ["k_gold"] },
         { label: "🐉 Zur Drachenhöhle!", to: "dh1", require: ["k_rot", "k_blau", "k_gold"], lockHint: "Du brauchst erst alle drei Kristalle." },
       ],
@@ -72,7 +72,7 @@ const DRACHENFEUER = {
       text: `Der Feuerwald war einmal flammend rot — jetzt stehen die Bäume aschgrau da. Plötzlich hörst du ein Wimmern: Ein junger Fuchs hängt mit der Pfote in einer alten Schlingfalle und schaut dich mit großen Augen an.`,
       choices: [
         { label: "Den Fuchs vorsichtig befreien", to: "fw2", take: ["fuchs"] },
-        { label: "Keine Zeit — leise weitergehen", to: "fw3" },
+        { label: "Keine Zeit — leise weitergehen", to: "fw1b" },
       ],
     },
     {
@@ -172,6 +172,7 @@ const DRACHENFEUER = {
         { label: "💎 Ihr den Glitzerstein schenken", to: "wb3", require: ["glitzerstein"], drop: ["glitzerstein"], lockHint: "Du hast gerade nichts Glänzendes dabei … (Tipp: Im Feuerwald soll es funkeln.)" },
         { label: "Versuchen, dich vorbeizuschleichen", to: "wb2_dice" },
         { label: "Umkehren und später wiederkommen", to: "gabelung" },
+        { label: "Funke schnüffelt aufgeregt — er wittert einen verborgenen Pfad!", to: "wb_geheim", showIf: ["fuchs"], secret: true },
       ],
     },
     {
@@ -180,13 +181,41 @@ const DRACHENFEUER = {
     },
     {
       id: "wb3", scene: "berge",
-      text: `Der Gipfel! Zwischen den Wolken hängt eine <strong>Treppe aus Sonnenstrahlen</strong> — aber sie trägt nur den, der sie zählt. Eine Stimme im Wind raunt: <em>„Drei Absätze hat mein Weg: zwölf Stufen, dann neun, dann sechs. Wie viele trägst du insgesamt?"</em>`,
-      riddle: { question: "12 + 9 + 6 = ?", answer: "27", hint: "Rechne erst 12 + 9, dann zähle 6 dazu.", win: "wb4" },
+      text: `Der Gipfel! Zwischen den Wolken hängt eine <strong>Treppe aus Sonnenstrahlen</strong> — aber sie trägt nur den, der sie zählt. Eine Stimme im Wind raunt: <em>„Drei Absätze hat mein Weg: zwölf Stufen, dann doppelt so viele, dann noch die Hälfte der ersten. Wie viele Stufen trägst du insgesamt?"</em>`,
+      riddle: { question: "12 Stufen + doppelt so viele + die Hälfte von 12 = ?", answer: "42", hint: "Doppelt so viele wie 12 sind 24. Die Hälfte von 12 ist 6. Jetzt alles zusammenzählen: 12 + 24 + 6.", hint2: "12 + 24 sind 36 — und dann noch die 6 obendrauf.", win: "wb4" },
     },
     {
       id: "wb4", scene: "berge",
       text: `„Siebenundzwanzig", sagst du — und die Treppe wird fest unter deinen Füßen. Oben, in einem Nest aus Wolkenwatte, liegt der <strong>goldene Kristall</strong>, warm wie ein kleines Stück Sommer. Als du ihn aufhebst, bricht die Sonne durch und färbt die Gipfel wieder golden!`,
       choices: [{ label: "Zurück zur Weggabelung", to: "gabelung", take: ["k_gold"] }],
+    },
+
+    {
+      id: "se0", scene: "see",
+      text: `Der See der Spiegel liegt still und grau vor dir. Am Steg döst <strong>Bodo der Biber</strong> neben seinem Boot — und linker Hand verschwindet ein schmaler Trampelpfad im wabernden <strong>Nebelmoor</strong>, das den See umrundet. Zwei Wege, ein Ziel.`,
+      hints: [
+        `Beide Wege führen ans andere Ufer — Bodo verlangt Köpfchen, das Moor verlangt Glück.`,
+        `Der sichere Weg: Bodos Rätsel lösen und übers Wasser fahren. Das Moor schaffst du nur ab einer 5 — dafür ist es schneller.`,
+      ],
+      choices: [
+        { label: "🦫 Bodo wecken und nach dem Boot fragen", to: "se1" },
+        { label: "🌫️ Den Pfad durchs Nebelmoor wagen (nur ab 5!)", to: "se_moor" },
+      ],
+    },
+    {
+      id: "se_moor",
+      dice: { text: "Von Grasinsel zu Grasinsel durchs blubbernde Nebelmoor — das klappt nur bei 5 oder 6! Bei 1–4 erwischt dich ein Schlammloch (−1 Herz).", threshold: 5, win: "se3", lose: "se0", loseHp: 1, loseText: "PLATSCH! Bis zur Hüfte im kalten Moorschlamm. Du ziehst dich triefend zurück zum Steg — vielleicht ist Bodos Boot doch die bessere Idee." },
+    },
+    {
+      id: "fw1b", scene: "wald",
+      text: `Du schleichst an der Falle vorbei — und entdeckst hinter einem Farnvorhang ein verstecktes <strong>Beerenversteck</strong>: glühend rote Glutbeeren, süß wie Honig und warm wie Kakao! Du isst dich satt und fühlst dich gleich kräftiger. ❤️ +1 Herz. (Irgendwo hinter dir fiept es leise — der Fuchs in der Falle. Aber du hattest ja keine Zeit …)`,
+      effect: { hp: 1 },
+      choices: [{ label: "Gestärkt weiter, tiefer in den Wald", to: "fw3" }],
+    },
+    {
+      id: "wb_geheim", scene: "berge",
+      text: `Funke führt dich schnüffelnd zu einem verborgenen Felsdurchgang. Auf dem Stein davor hat jemand eine Zahlenreihe eingeritzt — und darunter: <em>„Nenne die nächste Zahl, und der Berg trägt dich.“</em> Die Reihe lautet: <strong>3, 8, 15, 24, …</strong>`,
+      riddle: { question: "3, 8, 15, 24, … — welche Zahl kommt als Nächstes?", answer: "35", hint: "Schau dir die Abstände an: von 3 auf 8 sind es +5, von 8 auf 15 sind es +7, von 15 auf 24 sind es +9 …", hint2: "Die Abstände wachsen immer um 2: +5, +7, +9 — also kommt jetzt +11.", win: "wb4" },
     },
 
     // ----- Finale -----
@@ -266,12 +295,12 @@ const STERNENBASIS = {
   tagline: "Allein auf der Raumstation — bring sie sicher zur Erde zurück!",
   maxHp: 5,
   items: {
-    lampe: "🔦 B0Bs Ersatzlampe", pudding: "🍮 Astronautenpudding",
+    lampe: "🔦 B0Bs Ersatzlampe", pudding: "🍮 Astronautenpudding", beeren: "🫐 Leucht-Mondbeeren",
     ersatzteil: "🔧 Energiekristall", glibbi: "🟢 Glibbi (Maskottchen)",
   },
   rescue: { text: "Piep-piep! B0B zieht dich mit seinem Greifarm in die MedBay und verpasst dir ein Pflaster mit Raketenmuster. „REPARATUR ABGESCHLOSSEN. BITTE NICHT MEHR KAPUTTGEHEN“, schnarrt er. Du bist wieder fit!", to: "s2" },
   achievements: [
-    { id: "puddingdiplomat", emoji: "🍮", label: "Pudding-Diplomat — Glibbi friedlich überzeugt", test: (s) => s.items.includes("tausch") },
+    { id: "puddingdiplomat", emoji: "🍮", label: "Glibber-Diplomat — Glibbi friedlich überzeugt", test: (s) => s.items.includes("tausch") },
     { id: "lichtblick", emoji: "🔦", label: "Lichtblick — nie blind durchs Dunkel gestolpert", test: (s) => !s.visited.includes("l1_dice") },
     { id: "blitzpilot", emoji: "🚀", label: "Blitz-Pilot — in höchstens 14 Schritten heim", test: (s) => s.steps <= 14 },
     { id: "unverwundbar", emoji: "💪", label: "Unverwundbar — mit vollen Herzen ins Ziel", test: (s) => s.hp >= 5 },
@@ -334,6 +363,8 @@ const STERNENBASIS = {
       choices: [
         { label: "🍮 Den Pudding als Tauschgeschäft anbieten", to: "l3", require: ["pudding"], drop: ["pudding"], take: ["tausch"], lockHint: "Du hast nichts Leckeres dabei. (In der Küche gäbe es was …)" },
         { label: "Ihn vorsichtig durchkitzeln", to: "l2_dice" },
+        { label: "🫐 B0Bs Alternativ-Idee: Leuchtbeeren im Gewächshaus pflücken", to: "g1", hideIf: ["beeren"] },
+        { label: "🫐 Die Leucht-Mondbeeren zum Tausch anbieten", to: "l3", showIf: ["beeren"], drop: ["beeren"], take: ["tausch"] },
         { label: "Zurück zur Küche, Pudding holen", to: "k1" },
       ],
     },
@@ -345,6 +376,17 @@ const STERNENBASIS = {
       id: "l3", scene: "lager",
       text: `<em>Plöpp!</em> Der Glibber spuckt den Energiekristall aus (zum Glück völlig sauber — Glibber verdauen nur Süßes) und kullert dir hinterher wie ein glücklicher Gummiball. „ANALYSE", piept B0B: „DAS WESEN HAT DICH ADOPTIERT." Du taufst ihn <strong>Glibbi</strong>. Im Maschinenraum rastet der Kristall mit einem satten <em>KLONK</em> ein — die Lichter der Station flammen auf!`,
       choices: [{ label: "Jetzt zur Brücke!", to: "b1", take: ["ersatzteil", "glibbi", "ersatzteil_done"] }],
+    },
+
+    {
+      id: "g1", scene: "lager",
+      text: `Das Gewächshaus auf Deck 2 ist ein leuchtender Dschungel in Glaskuppeln. B0B rattert sein Bio-Wissen herunter: „GLIBBER FRESSEN NUR, WAS <strong>SÜSS</strong> IST UND <strong>LEUCHTET</strong>. HIER WACHSEN VIER SORTEN: MATTE ROTBEEREN (SÜSS), LEUCHTENDE MONDBEEREN (SÜSS), GLITZERNDE FUNKELBEEREN (SAUER WIE ZITRONE), MATTE BRAUNBEEREN (SCHMECKEN NACH SOCKE).“`,
+      riddle: { question: "Welche Beeren überzeugen den Glibber?", options: ["Die leuchtenden Mondbeeren", "Die glitzernden Funkelbeeren", "Die matten Rotbeeren", "Die matten Braunbeeren"], answer: 0, hint: "Beide Bedingungen müssen stimmen: süß UND leuchtend. Geh die Liste durch und streiche alles, was nur eine erfüllt.", win: "g2" },
+    },
+    {
+      id: "g2", scene: "lager",
+      text: `Du pflückst eine Handvoll <strong>Mondbeeren</strong> — sie schimmern wie kleine Laternen und duften nach Vanille. B0B nickt zufrieden: „WAHRSCHEINLICHKEIT FÜR GLIBBER-BEGEISTERUNG: 99,7 PROZENT.“`,
+      choices: [{ label: "Zurück zum Lagerraum 3!", to: "l2", take: ["beeren"] }],
     },
 
     // ----- Brücken-Strang -----
@@ -359,8 +401,8 @@ const STERNENBASIS = {
     },
     {
       id: "b2", scene: "bruecke",
-      text: `Geschafft — freier Weltraum! Der Bordcomputer meldet sich mit blecherner Stimme: „KURS ERDE BEREIT. ZUR FREIGABE BITTE SICHERHEITSFRAGE BEANTWORTEN: <em>Was ist 9 × 8?</em>" B0B flüstert: „ICH DARF NICHT VORSAGEN. ABER ICH GLAUBE AN DICH."`,
-      riddle: { question: "Was ist 9 × 8?", answer: "72", hint: "Tipp: 10 × 8 ist 80 — und dann ein Achterpack weniger.", win: "b3" },
+      text: `Geschafft — freier Weltraum! Der Bordcomputer meldet sich mit blecherner Stimme: „KURS ERDE BEREIT. ZUR FREIGABE BITTE SICHERHEITSFRAGE BEANTWORTEN: <em>Was ist 144 ÷ 12 + 60?</em>" B0B flüstert: „ICH DARF NICHT VORSAGEN. ABER ICH GLAUBE AN DICH."`,
+      riddle: { question: "144 ÷ 12 + 60 = ?", answer: "72", hint: "Erst teilen: Wie oft passt die 12 in die 144? (Denk ans große Einmaleins: 12 × 12 …)", hint2: "144 ÷ 12 = 12. Und 12 + 60 rechnest du im Schlaf.", win: "b3" },
     },
     {
       id: "b3", scene: "bruecke",

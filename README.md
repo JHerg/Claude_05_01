@@ -8,10 +8,10 @@ ersten Besuch dank Service Worker sogar ganz ohne Internet.
 
 Interaktive Text-Abenteuer für Kinder (ca. 10–12 Jahre) mit allem, was dazugehört:
 
-- **Fünf komplette Abenteuer** (100 Story-Knoten, 27 Szenenbilder):
+- **Fünf komplette Abenteuer** (124 Story-Knoten, 27 Szenenbilder, viele alternative Routen und Geheimpfade):
   *Drachenfeuer* (heile den einsamen Schattendrachen), *Sternenbasis 7*
   (allein auf der Raumstation, mit Roboter B0B und Glibberwesen), *Detektivbüro
-  Blitz* (Spuren sichern, Verdächtige befragen, den Pokal-Dieb überführen),
+  Blitz* (Spuren sichern, falsche Fährten erkennen, Alibis prüfen, Anklage erheben),
   *Die vergessene Insel* (Schatzkarte, Papagei Coco, Piratengeheimnis) und
   *Pokal der Legenden* (magisches Fußballturnier, bei dem das Herz zählt).
 - **Echte Spielmechanik**: Herzen ❤️, Rucksack 🎒, animierte Würfelproben 🎲,
@@ -38,7 +38,7 @@ Fünf Helfer für jeden Tag:
 
 | Modul | Was es kann |
 |---|---|
-| 🧠 **Lern-Trainer** | Kopfrechnen in 3 Stufen (endlos generierte Aufgaben), 60-Sekunden-Einmaleins-Sprint, Englisch-Vokabeln (6 Sets) als Lernkarten & Quiz, Wissens-Quiz mit 36 Fragen und Aha-Fakten — mit lokaler Bestenliste |
+| 🧠 **Lern-Trainer** | Kopfrechnen in 3 Stufen (endlos generierte Aufgaben), 60-Sekunden-Einmaleins-Sprint, Englisch-Vokabeln in 25 Themen-Sets mit 500 Wörtern (wählbar: Klasse 5/6 oder 8/9) als Lernkarten & Quiz, Wissens-Quiz mit 36 Fragen und Aha-Fakten — mit lokaler Bestenliste |
 | 🍳 **Koch-Pilot** | 24 alltagstaugliche Familienrezepte mit Filter (vegetarisch, schnell, süß) und Zutaten-Suche; Wochenplan-Würfel (Mo–Fr) mit zusammengefasster, abhakbarer Einkaufsliste |
 | ✍️ **Schreibwerkstatt** | 8 Ausfüll-Vorlagen: Schul-Entschuldigung, Kündigung, Reklamation, Krankmeldung, Widerruf, Glückwunsch, Einladung, Nachbarschafts-Nachricht — mit Kopieren-Knopf |
 | 🗓️ **Planer** | 9 Checklisten-Vorlagen (Kindergeburtstag, Urlaub, Packliste, Klassenfahrt, Camping, Schulstart, Umzug, Weihnachten, Notfall-Infos) zum Abhaken, mit Fortschrittsbalken und eigenen Punkten |

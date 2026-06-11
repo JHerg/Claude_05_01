@@ -12,39 +12,50 @@ const DETEKTIV = {
   id: "detektiv",
   emoji: "🕵️",
   title: "Detektivbüro Blitz",
-  tagline: "Der Wanderpokal der Schule ist weg — und das Fest ist am Samstag!",
+  tagline: "Der Wanderpokal ist weg, jeder ist verdächtig — und eine Spur führt in die Irre.",
   maxHp: 5,
   items: {
     lupe: "🔍 Lupe", notizbuch: "📓 Notizbuch", folie: "✨ Glitzerfolie", leiter: "🪜 Krauses Leiter",
-    hinweis_kratzer: "🔎 Spur: Kratzer", hinweis_feder: "🔎 Spur: Feder", hinweis_folie: "🔎 Spur: Bonbonfolie", hinweis_nest: "🔎 Spur: Glitzerndes Nest",
+    kakao: "☕ Kakao für Krause", mia_freund: "🎨 Mias Hilfe",
+    hinweis_kratzer: "🔎 Spur: Kratzer", hinweis_feder: "🔎 Spur: Feder", hinweis_folie: "🔎 Spur: Bonbonfolie",
+    hinweis_kaugummi: "🔎 Spur: Kaugummi", hinweis_alibi: "🔎 Spur: Besucherbuch", hinweis_nest: "🔎 Spur: Glitzerndes Nest",
+    theorie: "💡 Deine Theorie", geheim_fund: "🎺 Bolts Pfeife & Schlüssel",
   },
   rescue: { text: "Frau Sommer setzt dich ins Sekretariat, reicht dir Kakao und einen Keks. „Auch Meisterdetektive brauchen Pausen“, sagt sie. Frisch gestärkt geht es weiter!", to: "d3" },
   achievements: [
-    { id: "meisterdetektiv", emoji: "🕵️", label: "Meisterdetektiv — alle vier Spuren gefunden", test: (s) => ["hinweis_kratzer", "hinweis_feder", "hinweis_folie", "hinweis_nest"].every((h) => s.items.includes(h)) },
+    { id: "meisterdetektiv", emoji: "🕵️", label: "Meisterdetektiv — alle sechs Spuren gefunden", test: (s) => ["hinweis_kratzer", "hinweis_feder", "hinweis_folie", "hinweis_kaugummi", "hinweis_alibi", "hinweis_nest"].every((h) => s.items.includes(h)) },
+    { id: "scharfsinn", emoji: "🧠", label: "Scharfsinn — nie jemanden falsch beschuldigt", test: (s) => !s.visited.includes("d5_falsch") && !s.visited.includes("db_falsch") },
     { id: "elsterfluesterer", emoji: "🐦", label: "Elster-Flüsterer — Kira mit einem Tausch überzeugt", test: (s) => s.items.includes("freund_elster") },
-    { id: "helferherz", emoji: "🤝", label: "Helferherz — Herrn Krause beim Tragen geholfen", test: (s) => s.items.includes("freund_hausmeister") },
-    { id: "unverwundbar", emoji: "💪", label: "Unverwundbar — mit vollen Herzen ins Ziel", test: (s) => s.hp >= 5 },
+    { id: "helferherz", emoji: "🤝", label: "Helferherz — Krause UND Mia geholfen", test: (s) => s.items.includes("freund_hausmeister") && s.items.includes("mia_freund") },
+    { id: "geheimnisjaeger", emoji: "🎺", label: "Geheimnisjäger — das zweite Geheimnis des Nests entdeckt", test: (s) => s.items.includes("geheim_fund") },
   ],
   start: "d1",
   scenes: SCENES_DETEKTIV,
   nodes: [
     {
       id: "d1", scene: "buero",
-      text: `Montagmorgen im Baumhaus — dem geheimen Hauptquartier des <strong>Detektivbüros Blitz</strong>. Da klettert tatsächlich Schulleiterin Frau Sommer die Strickleiter hoch, ganz außer Atem: „Ich brauche eure Hilfe! Der <strong>Wanderpokal</strong> ist aus der Aula verschwunden — und am Samstag ist das große Schulfest mit der Siegerehrung! Die Polizei lacht mich aus. Ihr seid meine letzte Hoffnung.“`,
-      choices: [{ label: `🔍 „Wir übernehmen den Fall!“ — Ausrüstung packen`, to: "d2", take: ["lupe", "notizbuch"] }],
+      text: `Montagmorgen im Baumhaus — dem geheimen Hauptquartier des <strong>Detektivbüros Blitz</strong>. Da klettert tatsächlich Schulleiterin Frau Sommer die Strickleiter hoch, ganz außer Atem: „Ich brauche eure Hilfe! Der <strong>Wanderpokal</strong> ist aus der Aula verschwunden — und am Samstag ist das große Schulfest mit der Siegerehrung! Das Schloss ist heil, nichts ist aufgebrochen, niemand hat etwas gesehen. Die Polizei lacht mich aus. Ihr seid meine letzte Hoffnung.“`,
+      choices: [{ label: `🔍 „Wir übernehmen den Fall!“ — Ausrüstung packen`, to: "d2v", take: ["lupe", "notizbuch"] }],
+    },
+    {
+      id: "d2v", scene: "schrank",
+      text: `Vor der Aula bleibt Frau Sommer stöhnend stehen: „Ach herrje — die Tür hat seit Neuestem ein <strong>Zahlenschloss</strong>, und ich habe den Code schon wieder vergessen! Ich weiß nur noch den Merksatz vom Hausmeister: <em>Nimm unser Gründungsjahr 1987 und bilde die Quersumme — also alle vier Ziffern zusammenzählen.</em>“`,
+      riddle: { question: "Quersumme von 1987: 1 + 9 + 8 + 7 = ?", answer: "25", hint: "Rechne Schritt für Schritt: 1 + 9 = 10, dann + 8, dann + 7.", win: "d2" },
     },
     {
       id: "d2", scene: "schrank",
-      text: `Die Aula. Der Trophäenschrank steht offen, das Schloss ist <em>unversehrt</em> — kein Einbruch! Auf dem leeren Pokal-Platz: nur ein Staubring. Frau Sommer flüstert: „Freitagnachmittag war er noch da.“ Zeit für Detektivarbeit. Was untersuchst du?`,
+      text: `Die Aula. Der Trophäenschrank steht offen, auf dem leeren Pokal-Platz nur ein Staubring. Zeit für echte Detektivarbeit — und gründliche Detektive untersuchen <em>alles</em>.`,
       hints: [
-        `Gute Detektive schauen überall hin: oben, zur Seite und nach unten.`,
-        `Der richtige Schritt: Untersuche nacheinander alle drei Stellen — Schrank, Fenster und Boden. Erst mit allen drei Spuren geht es zur Befragung.`,
+        `Gute Detektive schauen überall hin — auch dorthin, wo es unappetitlich wird.`,
+        `Es gibt hier VIER Stellen zu untersuchen: Schrank, Fenster, Boden … und den Mülleimer. Nicht jede Spur führt zum Täter — aber das weißt du erst hinterher.`,
+        `Der richtige Schritt: Alle vier Stellen untersuchen, dann zur Befragung. Drei Spuren sind Pflicht, der Mülleimer ist die Kür (und eine Falle für voreilige Detektive).`,
       ],
       choices: [
         { label: "🔍 Den Schrank von oben bis unten", to: "d2a", hideIf: ["hinweis_kratzer"] },
         { label: "🔍 Das Fenster daneben", to: "d2b", hideIf: ["hinweis_feder"] },
         { label: "🔍 Den Boden vor dem Schrank", to: "d2c", hideIf: ["hinweis_folie"] },
-        { label: "✅ Genug gesehen — Verdächtige befragen!", to: "d3", require: ["hinweis_kratzer", "hinweis_feder", "hinweis_folie"], lockHint: "Ein guter Detektiv untersucht erst alle drei Stellen." },
+        { label: "🔍 Den Mülleimer in der Ecke (igitt)", to: "d2d", hideIf: ["hinweis_kaugummi"] },
+        { label: "✅ Genug gesehen — Verdächtige befragen!", to: "d3", require: ["hinweis_kratzer", "hinweis_feder", "hinweis_folie"], lockHint: "Untersuche mindestens Schrank, Fenster und Boden." },
       ],
     },
     {
@@ -63,41 +74,53 @@ const DETEKTIV = {
       choices: [{ label: "Weiter ermitteln", to: "d2", take: ["hinweis_folie"] }],
     },
     {
+      id: "d2d", scene: "schrank",
+      text: `Du überwindest dich und wühlst im Mülleimer. Zwischen Pausenbrot-Resten: ein frisch ausgespuckter <strong>Pfefferminz-Kaugummi</strong>. Du kennst nur EINE Person, die ununterbrochen Pfefferminz kaut: <em>Sportlehrer Bolt!</em> Was hatte DER hier am Freitag zu suchen? Dein Detektivherz schlägt schneller — aber Vorsicht: Eine Spur ist noch kein Beweis.`,
+      choices: [{ label: "Hochinteressant. Weiter ermitteln", to: "d2", take: ["hinweis_kaugummi"] }],
+    },
+    {
       id: "d3", scene: "hof",
-      text: `Auf dem Schulhof gehst du deine Liste durch. Drei Personen waren am Freitag noch im Gebäude: <strong>Hausmeister Krause</strong> (mürrisch, hat alle Schlüssel), die <strong>neue Schülerin Mia</strong> (huscht ständig heimlich umher) und <strong>Sportlehrer Herr Bolt</strong> (dem der Pokal „sowieso gehört“, wie er gern sagt). Wen knöpfst du dir vor?`,
+      text: `Auf dem Schulhof gehst du deine Liste durch. Am Freitagnachmittag waren noch im Gebäude: <strong>Hausmeister Krause</strong> (mürrisch, hat alle Schlüssel), die <strong>neue Schülerin Mia</strong> (huscht ständig heimlich umher), <strong>Sportlehrer Bolt</strong> (Pfefferminz-Kaugummi!) — und im Sekretariat sitzt <strong>Frau Specht</strong>, die das <em>Besucherbuch</em> führt. Irgendwann musst du Frau Sommer außerdem deine <strong>Theorie</strong> präsentieren. Aber Vorsicht: Eine falsche Anschuldigung wäre mehr als peinlich.`,
       hints: [
-        `Keiner der drei ist der Dieb — aber JEDER weiß etwas, das dich weiterbringt. Sprich am besten mit allen.`,
-        `Beim Hausmeister hilft Anpacken statt Verhören (es lohnt sich doppelt!), Mia hat ein Geschenk für dich, und Herr Bolt ärgert sich über etwas sehr Aufschlussreiches.`,
-        `Der richtige Schritt: Die heiße Spur bekommst du bei Sportlehrer Bolt — sein Rätsel führt dich direkt zum Kastanienbaum.`,
+        `Keiner rennt mit dem Pokal unterm Arm herum — du brauchst Aussagen UND das Besucherbuch, um die Spuren zu sortieren.`,
+        `Beim Hausmeister hilft Anpacken statt Verhören (oder ein warmer Kakao …), Mia hat zwei Geschenke für dich, Bolt weiß mehr, als er ahnt — und Frau Spechts Besucherbuch entlarvt, wer wann WIRKLICH in der Aula war.`,
+        `Der richtige Weg: Spuren + Besucherbuch sammeln → im Notizbuch die Theorie bilden → dann erst anklagen. Wer wild rät, blamiert sich (und verliert ein Herz).`,
       ],
       choices: [
         { label: "🔑 Hausmeister Krause", to: "dk1", hideIf: ["freund_hausmeister"] },
-        { label: "🎨 Die neue Schülerin Mia", to: "dm1", hideIf: ["folie"] },
-        { label: "🏃 Sportlehrer Herr Bolt", to: "ds1", hideIf: ["hinweis_nest"] },
-        { label: "🌳 Zeit für die Auflösung — zum Kastanienbaum!", to: "d4", require: ["hinweis_nest"], lockHint: "Du brauchst erst eine heiße Spur, wohin der Pokal verschwunden ist." },
+        { label: "🎨 Die neue Schülerin Mia", to: "dm1", hideIf: ["mia_freund"] },
+        { label: "🏃 Sportlehrer Bolt", to: "db1", hideIf: ["hinweis_nest"] },
+        { label: "🗂️ Frau Specht im Sekretariat (Besucherbuch)", to: "dsp1", hideIf: ["hinweis_alibi"] },
+        { label: "📓 Notizbuch: die Spuren sortieren", to: "d4log", require: ["hinweis_kratzer", "hinweis_feder"], hideIf: ["theorie"], lockHint: "Dafür brauchst du mindestens die Kratzer- und die Feder-Spur vom Tatort." },
+        { label: "⚖️ Frau Sommer die Theorie präsentieren!", to: "d5", require: ["theorie"], lockHint: "Erst die Spuren im Notizbuch sortieren — eine Anklage ohne Theorie geht schief." },
       ],
     },
+
+    // ----- Hausmeister Krause -----
     {
       id: "dk1", scene: "hof",
       text: `Hausmeister Krause wuchtet schwere Kisten aus dem Keller und schnauft wie eine alte Dampflok. Als er dich sieht, brummt er: „Ich hab nichts geklaut, falls du das denkst. Und ich hab zu tun!“`,
       choices: [
         { label: "🤝 Erstmal mit anpacken und Kisten tragen", to: "dk2" },
+        { label: "☕ Ihm den Kakao von Frau Specht geben", to: "dk2", require: ["kakao"], drop: ["kakao"], lockHint: "Du hast nichts Warmes dabei … Frau Specht wüsste bestimmt, womit man Krause knackt." },
         { label: `„Wo waren Sie Freitagnacht?!“ — direkt verhören`, to: "dk3" },
       ],
     },
     {
       id: "dk2", scene: "hof",
-      text: `Eine halbe Stunde später sind die Kisten oben — und Krause taut auf wie Butter in der Sonne. Er zeigt dir den Inhalt: <strong>Lichterketten</strong>! „Mein Geheimnis. Ich schmücke nachts die Aula fürs Fest. Freitag war ich auch dort …“ Er senkt die Stimme: „… und da hab ich am Fenster was <em>Schwarzes flattern</em> sehen! Hier, nimm meine Leiter mit, falls du irgendwo hoch musst. Und psst wegen der Lichterketten!“`,
+      text: `Krause taut auf wie Butter in der Sonne. Er zeigt dir den Inhalt seiner Kisten: <strong>Lichterketten</strong>! „Mein Geheimnis. Ich schmücke nachts die Aula fürs Fest. Freitag war ich auch dort …“ Er senkt die Stimme: „… und da hab ich am Fenster was <em>Schwarzes flattern</em> sehen! Dachte erst, mir spinnt die Brille.“ Er drückt dir seine Leiter in die Hand: „Falls du irgendwo hoch musst. Und psst wegen der Lichterketten!“`,
       choices: [{ label: "Zurück zum Schulhof", to: "d3", take: ["freund_hausmeister", "leiter"] }],
     },
     {
       id: "dk3", scene: "hof",
-      text: `Krause knallt die Kellertür zu. „Verhör mich doch, wenn du groß bist!“ Hm. Mit der Brechstange kommst du hier nicht weiter — vielleicht solltest du ihm erstmal <em>helfen</em>?`,
+      text: `Krause knallt die Kellertür zu. „Verhör mich doch, wenn du groß bist!“ Hm. Mit der Brechstange kommst du hier nicht weiter — vielleicht erstmal <em>helfen</em>? Oder ihn mit etwas Warmem besänftigen?`,
       choices: [
         { label: "🤝 Na gut — Kisten tragen", to: "dk2" },
         { label: "Erstmal zu den anderen", to: "d3" },
       ],
     },
+
+    // ----- Mia -----
     {
       id: "dm1", scene: "hof",
       text: `Mia sitzt allein vor dem Kunstraum und versteckt hastig etwas hinter ihrem Rücken. Sie wird knallrot: „I-ich hab nichts gemacht!“ In ihrer Tasche glitzert es verdächtig — <em>silberne Folien</em>, genau wie am Tatort!`,
@@ -108,55 +131,134 @@ const DETEKTIV = {
     },
     {
       id: "dm2", scene: "hof",
-      text: `Mia gibt auf und zeigt ihr Geheimnis: ein <strong>selbstgebasteltes Glitzer-Banner</strong> fürs Schulfest — aus hunderten gesammelten Bonbonfolien! „Ich bin neu hier. Ich dachte, dann mögen mich vielleicht alle“, murmelt sie. Freitag hat sie in der Aula heimlich Maß genommen — dabei muss sie die Folie verloren haben. „Das Fenster stand schon offen! Und auf dem Dach hat es die ganze Zeit <em>tack-tack-tack</em> gemacht.“ Sie schenkt dir eine ihrer schönsten Glitzerfolien: „Für deine Ermittlungen!“`,
-      choices: [{ label: "Zurück zum Schulhof", to: "d3", take: ["folie"] }],
+      text: `Mia gibt auf und zeigt ihr Geheimnis: ein <strong>selbstgebasteltes Glitzer-Banner</strong> fürs Schulfest — aus hunderten gesammelten Bonbonfolien! „Ich bin neu hier. Ich dachte, dann mögen mich vielleicht alle“, murmelt sie. Freitag hat sie in der Aula heimlich Maß genommen — dabei muss sie die Folie verloren haben. „Das Fenster stand schon offen! Und auf dem Dach hat es die ganze Zeit <em>tack-tack-tack</em> gemacht.“ Sie schenkt dir eine ihrer schönsten Glitzerfolien.`,
+      choices: [
+        { label: "🎨 Ihr eine Stunde beim Banner helfen", to: "dm3", take: ["folie"] },
+        { label: "Danke! Zurück zum Schulhof", to: "d3", take: ["folie"] },
+      ],
     },
     {
-      id: "ds1", scene: "hof",
-      text: `Herr Bolt pumpt gerade Bälle auf und schimpft vor sich hin: „Erst meine silberne Trillerpfeife, dann mein Schlüsselbund, jetzt der Pokal! Diese Schule wird ausgeraubt!“ Moment mal … Pfeife, Schlüssel, Pokal. Dein Detektivhirn rattert: <em>Was haben alle drei Dinge gemeinsam?</em>`,
-      riddle: { question: "Trillerpfeife, Schlüsselbund, Pokal — was haben alle gestohlenen Dinge gemeinsam?", options: ["Sie glitzern und glänzen", "Sie gehören Herrn Bolt", "Sie sind aus der Aula", "Sie sind schwer"], answer: 0, hint: "Denk an die schwarze Feder … und woran Elstern ihr Herz verlieren.", win: "ds2" },
+      id: "dm3", scene: "hof",
+      text: `Ihr klebt, schneidet und lacht — und Mia blüht richtig auf. Plötzlich stockt sie und zeigt aus dem Kunstraum-Fenster: „Schau mal! Von HIER sieht man den großen Kastanienbaum … und da oben <em>glitzert</em> doch was in den Ästen?!“ Tatsächlich — ein Funkeln im Geäst! Mia grinst: „Wenn du da hoch musst: Vom Kunstraum-Fenster kommt man aufs Vordach. Ich zeig dir den Weg, wir sind jetzt ein Team.“`,
+      choices: [{ label: "📓 Notieren: Das Nest! Zurück zum Hof", to: "d3", take: ["mia_freund", "hinweis_nest"] }],
+    },
+
+    // ----- Sportlehrer Bolt -----
+    {
+      id: "db1", scene: "hof",
+      text: `Herr Bolt pumpt Bälle auf und kaut — natürlich — <em>Pfefferminz-Kaugummi</em>. {hat:hinweis_kaugummi?Dein Fund aus dem Mülleimer brennt in der Tasche. Er war Freitag in der Aula, das ist jetzt klar. Aber WARUM?:}`,
+      choices: [
+        { label: `😤 „Sie waren es! Ihr Kaugummi lag am Tatort!“`, to: "db_falsch", showIf: ["hinweis_kaugummi"] },
+        { label: "Erstmal fragen, warum er so schlecht gelaunt ist", to: "db2" },
+      ],
     },
     {
-      id: "ds2", scene: "hof",
-      text: `„Alles GLÄNZT!“, rufst du — und Herr Bolt lässt vor Schreck den Ball fallen. Gemeinsam blickt ihr zum großen <strong>Kastanienbaum</strong> hinterm Sportplatz. Und tatsächlich: Hoch oben in den Ästen <em>blitzt und funkelt</em> es in der Sonne! „Na sowas“, staunt Bolt. „Da wohnt doch diese freche Elster …“`,
+      id: "db_falsch", scene: "hof",
+      text: `Bolt läuft rot an wie eine Tomate im Trainingsanzug. „WAS?! Ich war Freitag in der Aula, um meine <em>gestohlene Trillerpfeife</em> zu suchen, du Schlaumeier! Erst die Pfeife, dann mein Schlüsselbund, jetzt der Pokal — und ICH soll der Dieb sein?!“ Die halbe Schule hat es gehört. Dir brennen die Ohren (−1 Herz). Merke: Eine Spur ist noch kein Beweis — der Kaugummi war eine <strong>falsche Fährte</strong>.`,
+      effect: { hp: -1 },
+      choices: [{ label: "😳 Entschuldigen und richtig zuhören", to: "db2" }],
+    },
+    {
+      id: "db2", scene: "hof",
+      text: `Bolt schnauft sich ab und zählt an den Fingern auf: „Erst verschwindet meine <em>silberne Trillerpfeife</em>. Dann mein <em>Schlüsselbund</em>. Jetzt der <em>Pokal</em>. Diese Schule wird ausgeraubt!“ Moment. Pfeife. Schlüssel. Pokal. Dein Detektivhirn rattert: <em>Was haben alle drei gemeinsam?</em>`,
+      riddle: { question: "Trillerpfeife, Schlüsselbund, Pokal — was haben alle gestohlenen Dinge gemeinsam?", options: ["Sie glitzern und glänzen", "Sie gehören Herrn Bolt", "Sie waren in der Aula", "Sie sind aus Metall und schwer"], answer: 0, hint: "Denk an die schwarze Feder am Fenster … und woran Elstern ihr Herz verlieren. (Aus Metall sind sie auch — aber der Pokal ist riesig und die Pfeife winzig. Glänzen tun sie ALLE.)", win: "db3" },
+    },
+    {
+      id: "db3", scene: "hof",
+      text: `„Alles GLÄNZT!“, rufst du — und Bolt lässt vor Schreck den Ball fallen. Gemeinsam blickt ihr zum großen <strong>Kastanienbaum</strong> hinterm Sportplatz. Und tatsächlich: Hoch oben <em>blitzt und funkelt</em> es in der Sonne! „Na sowas“, staunt Bolt. „Da wohnt doch diese freche Elster …“`,
       choices: [{ label: "📓 Notieren: Das Nest! Zurück zum Hof", to: "d3", take: ["hinweis_nest"] }],
     },
+
+    // ----- Sekretariat -----
     {
-      id: "d4", scene: "baum",
-      text: `Der Kastanienbaum ist ein Riese — und ganz oben, gut versteckt, thront ein <strong>Nest voller Glitzerkram</strong>. Von hier unten erkennst du sogar einen goldenen Henkel! Aber wie kommst du da hoch?`,
+      id: "dsp1", scene: "buero",
+      text: `Im Sekretariat klingelt das Telefon im Dauerton. Frau Specht jongliert drei Aktenstapel: „Das Besucherbuch? Gern, Kindchen — aber NUR, wenn du mir kurz hilfst. Diese vier Pakete müssen sortiert werden: Das <em>schwerste</em> zuerst. Ich weiß nur: Das rote ist schwerer als das blaue. Das blaue ist schwerer als das grüne. Und das gelbe ist leichter als das grüne.“`,
+      riddle: { question: "Welches Paket ist das schwerste?", options: ["Das rote", "Das blaue", "Das grüne", "Das gelbe"], answer: 0, hint: "Bau eine Kette: rot > blau > grün > gelb. Ganz vorne steht das schwerste.", win: "dsp2" },
+    },
+    {
+      id: "dsp2", scene: "buero",
+      text: `„Na bitte, ein Logikprofi!“ Frau Specht schlägt das <strong>Besucherbuch</strong> auf. Freitag, 15–17 Uhr: <em>Krause (Keller, Lichterketten holen), Mia (Aula, nur 10 Minuten), Bolt (Aula, 16:30 — „Pfeife suchen“)</em>. „Und um 17 Uhr habe ich höchstpersönlich abgeschlossen — da stand der Pokal noch drin, ich hab ihn durchs Fenster glänzen sehen!“ Alle drei haben also ein Alibi … der Pokal verschwand NACH 17 Uhr, durch die <em>verschlossene</em> Tür. Oder eben: nicht durch die Tür. Sie drückt dir noch einen Becher in die Hand: „Bringst du dem Krause seinen Kakao mit? Der Brummbär taut sonst nie auf.“`,
+      choices: [{ label: "📓 Alles notiert! Zurück zum Hof", to: "d3", take: ["hinweis_alibi", "kakao"] }],
+    },
+
+    // ----- Theorie & Anklage -----
+    {
+      id: "d4log", scene: "buero",
+      text: `Du breitest das Notizbuch im Baumhaus aus und malst Pfeile: <em>Kratzer OBEN auf dem Schrank. Eine schwarze Feder am offenen Fenster im 2. Stock. Tack-tack auf dem Dach. {hat:hinweis_alibi?Alle Menschen haben ein Alibi — und die Tür war abgeschlossen.:}{hat:hinweis_kaugummi?Und der Kaugummi? Bolt suchte nur seine Pfeife — falsche Fährte!:}</em> Die Wahrheit liegt vor dir. Wer kommt durch ein Fenster im 2. Stock, klettert mit Krallen über Schränke und liebt Glänzendes?`,
+      riddle: { question: "Deine Schlussfolgerung, Detektiv: Wer ist der Täter?", options: ["Ein Vogel mit Vorliebe für Glitzer — eine Elster!", "Hausmeister Krause mit seiner Leiter", "Mia, die Glitzerfolien sammelt", "Sportlehrer Bolt, der den Pokal „zurückholen“ wollte"], answer: 0, hint: "Krallen-Kratzer, Feder, Fenster im 2. Stock, abgeschlossene Tür — welcher TÄTER braucht keinen Schlüssel und keine Leiter?", win: "d4done" },
+    },
+    {
+      id: "d4done", scene: "buero",
+      text: `Natürlich! Alle Spuren zeigen in dieselbe Richtung: <strong>Der Täter ist kein Mensch.</strong> Du schreibst deine Theorie sauber ins Notizbuch — mit Beweisen, Alibis und einem dramatischen Schlusssatz, versteht sich. Jetzt fehlt nur noch: Frau Sommer überzeugen.`,
+      choices: [{ label: "⚖️ Zur Anklage!", to: "d3", take: ["theorie"] }],
+    },
+    {
+      id: "d5", scene: "hof",
+      text: `Frau Sommer hat das halbe Kollegium zusammengetrommelt. „Nun, Detektivbüro Blitz — <strong>wer</strong> hat den Pokal gestohlen?“ Alle Augen ruhen auf dir. Ein falsches Wort, und du blamierst dich bis zu den Sommerferien. Deine Anklage lautet …`,
       hints: [
-        `Klettern geht immer — aber mit dem richtigen Werkzeug wäre es sicherer.`,
-        `{hat:leiter?Der richtige Schritt: Du hast Krauses Leiter dabei — stell sie an und steig sicher hinauf!:Wer Hausmeister Krause beim Kistentragen hilft, bekommt seine Leiter geliehen. Sonst: klettern und auf die Würfel vertrauen.}`,
+        `Geh deine Beweise durch: Wer kann durchs Fenster im 2. Stock kommen, wenn die Tür abgeschlossen ist?`,
+        `Alle drei Menschen haben ein Alibi aus dem Besucherbuch. Die Kratzer stammen von Krallen, die Feder von einem großen schwarzen Vogel.`,
+        `Der richtige Schritt: Klage die Elster an — der Täter ist kein Mensch!`,
       ],
       choices: [
-        { label: "🪜 Krauses Leiter anlegen", to: "d5", require: ["leiter"], lockHint: "Eine Leiter wäre praktisch … wer hat hier nochmal eine?" },
-        { label: "🧗 Freiklettern wie ein Eichhörnchen", to: "d4_dice" },
+        { label: "🐦 „Der Täter ist … KEIN Mensch. Es war die Elster!“", to: "d6" },
+        { label: "🔑 „Es war Hausmeister Krause!“", to: "d5_falsch" },
+        { label: "🎨 „Es war Mia, die Neue!“", to: "d5_falsch" },
+        { label: "🏃 „Es war Sportlehrer Bolt!“", to: "d5_falsch" },
       ],
     },
     {
-      id: "d4_dice",
-      dice: { text: "Klettern ohne Leiter! Bei 4–6 turnst du elegant nach oben, bei 1–3 rutschst du ab und schürfst dir das Knie auf (−1 Herz).", win: "d5", lose: "d4", loseHp: 1, loseText: "Ratsch! Ein Ast bricht, du landest im Laub. Das Knie brennt — aber aufgeben gibt's nicht. Neuer Versuch!" },
+      id: "d5_falsch", scene: "hof",
+      text: `Eisige Stille. Die beschuldigte Person schnappt nach Luft, Frau Sommer hebt eine Augenbraue: „Und die <em>Beweise</em>?“ Du stammelst — und merkst selbst: Das Alibi aus dem Besucherbuch zerlegt deine Anklage in der Luft. Wie peinlich (−1 Herz). „Noch ein Versuch“, sagt Frau Sommer streng, „aber diesmal mit Köpfchen.“`,
+      effect: { hp: -1 },
+      choices: [{ label: "Tief durchatmen — neue Anklage", to: "d5" }],
     },
+
+    // ----- Showdown am Baum -----
     {
-      id: "d5", scene: "baum",
-      text: `Du bist oben! Im Nest: Herrn Bolts Trillerpfeife, ein Schlüsselbund, drei Kronkorken — und mittendrin <strong>der Wanderpokal</strong>! Da rauscht es: Die Elster <strong>Kira</strong> landet auf dem Ast und plustert sich auf. „Krah! MEINS!“, scheint ihr Blick zu sagen. Sie sieht nicht so aus, als würde sie ihren Schatz kampflos hergeben.`,
+      id: "d6", scene: "baum",
+      text: `Raunen in der Menge — und dann marschiert die ganze Gesellschaft zum <strong>Kastanienbaum</strong>. Hoch oben, gut versteckt, thront tatsächlich ein <strong>Nest voller Glitzerkram</strong>. Du erkennst sogar einen goldenen Henkel! „Beweise es“, sagt Frau Sommer leise. Jetzt heißt es: nach oben. Aber wie?`,
       hints: [
-        `Eine Elster gibt nichts freiwillig her — außer, sie bekommt etwas Besseres dafür.`,
-        `{hat:folie?Schau in deine Tasche: Mias Glitzerfolie funkelt mehr als jeder Pokal!:Mia sammelt Glitzerfolien — wer freundlich mit ihr spricht, bekommt eine geschenkt.}`,
-        `{hat:folie?Der richtige Schritt: Tausch die Glitzerfolie gegen den Pokal — Kira wird es lieben (und du bekommst einen Erfolg!).:Der richtige Schritt: Geh zurück und sprich mit Mia — ihre Glitzerfolie ist das perfekte Tauschgeschäft. Schnell zugreifen geht zur Not auch, ist aber riskant.}`,
+        `Es gibt drei Wege nach oben — zwei sichere und einen wackeligen.`,
+        `{hat:leiter?Du hast Krauses Leiter!:Krauses Leiter (hilf ihm beim Tragen oder bring ihm Kakao)}{hat:mia_freund? — und Mia kennt den Weg übers Vordach.: oder Mias Vordach-Trick (hilf ihr beim Banner) wären sichere Wege.}`,
+        `Der sicherste Plan: Hol dir Krauses Leiter (Kisten tragen oder Kakao bringen) oder Mias Vordach-Trick (hilf ihr beim Banner). Freiklettern klappt nur ab einer 5 — das ist was für Glückspilze.`,
       ],
       choices: [
-        { label: "✨ Tauschgeschäft: die Glitzerfolie anbieten", to: "d6", require: ["folie"], drop: ["folie"], take: ["freund_elster"], lockHint: "Du bräuchtest etwas Glitzerndes zum Tauschen … Mia sammelt sowas." },
-        { label: "🫳 Schnell zugreifen, bevor sie reagiert", to: "d5_dice" },
+        { label: "🪜 Krauses Leiter anlegen", to: "d7", require: ["leiter"], lockHint: "Eine Leiter wäre praktisch … wer hat hier nochmal eine? (Tipp: Hilf dem Hausmeister.)" },
+        { label: "🎨 Mias Geheimweg: Kunstraum → Vordach → Ast", to: "d7", require: ["mia_freund"], lockHint: "Diesen Weg kennt nur Mia — und sie zeigt ihn nur Freunden." },
+        { label: "🧗 Freiklettern (riskant: klappt nur ab einer 5!)", to: "d6_dice" },
       ],
     },
     {
-      id: "d5_dice",
-      dice: { text: "Blitzschnell nach dem Pokal greifen! Bei 4–6 bist du schneller, bei 1–3 erwischt dich Kiras Schnabel (−1 Herz).", win: "d6", lose: "d5", loseHp: 1, loseText: "ZACK! Kira ist schneller und zwickt dich in den Finger. Sie funkelt dich an: So wird das nichts. Vielleicht gibt es einen freundlicheren Weg?" },
+      id: "d6_dice",
+      dice: { text: "Freiklettern am Riesen-Kastanienbaum — das schaffst du nur bei 5 oder 6! Bei 1–4 rutschst du ab (−1 Herz).", threshold: 5, win: "d7", lose: "d6", loseHp: 1, loseText: "Ratsch! Ein Ast bricht, du landest im Laub — vor versammelter Schule. Das Knie brennt, die Ohren glühen. Vielleicht doch lieber einen sicheren Weg suchen?" },
     },
     {
-      id: "d6", scene: "schulfest", end: "win",
-      text: `Samstag, Schulfest! Vor versammelter Schule löst du den Fall auf: „Kein Dieb, kein Einbrecher — sondern <strong>Kira die Elster</strong>! Die Kratzer auf dem Schrank: ihre Krallen. Die Feder am Fenster: ihre. Sie liebt alles, was glänzt — und das Fenster stand offen.“ Frau Sommer strahlt, Herr Bolt bekommt seine Trillerpfeife zurück, Krauses Lichterketten funkeln und Mias Glitzer-Banner hängt über der Bühne — plötzlich will jeder mit ihr basteln. {hat:freund_elster?Und Kira? Die sitzt jetzt auf dem Pokalschrank, bewacht ihre neue Glitzerfolie und wurde feierlich zum „Ehren-Wachvogel der Trophäensammlung“ ernannt. } Frau Sommer überreicht dir eine Urkunde: <strong>„Meisterdetektiv des Detektivbüros Blitz“</strong> — und das Baumhaus bekommt ein neues Schild. Fall gelöst!`,
+      id: "d7", scene: "baum",
+      text: `Du bist oben! Im Nest: Trillerpfeife, Schlüsselbund, drei Kronkorken — und mittendrin <strong>der Wanderpokal</strong>! Da rauscht es: Die Elster <strong>Kira</strong> landet auf dem Ast und plustert sich auf. „Krah! MEINS!“, scheint ihr Blick zu sagen. Unten halten alle den Atem an.`,
+      hints: [
+        `Eine Elster gibt nichts freiwillig her — außer, sie bekommt etwas Besseres. Oder du wartest einfach mal ab, was sie tut …`,
+        `{hat:folie?Mias Glitzerfolie funkelt mehr als jeder Pokal — das perfekte Tauschgeschäft.:Mia sammelt Glitzerfolien — wer freundlich zu ihr ist, bekommt eine geschenkt.}`,
+        `Der richtige Schritt: Tauschen statt schnappen. Und wer GANZ geduldig ist und erst beobachtet, entdeckt im Nest noch ein zweites Geheimnis …`,
+      ],
+      choices: [
+        { label: "✨ Tauschgeschäft: die Glitzerfolie anbieten", to: "d8", require: ["folie"], drop: ["folie"], take: ["freund_elster"], lockHint: "Du bräuchtest etwas Glitzerndes zum Tauschen … Mia sammelt sowas." },
+        { label: "🫳 Schnell zugreifen, bevor sie reagiert", to: "d7_dice" },
+        { label: "Ganz still warten und Kira beobachten", to: "d7b", hideIf: ["geheim_fund"], secret: true },
+      ],
+    },
+    {
+      id: "d7_dice",
+      dice: { text: "Blitzschnell nach dem Pokal greifen! Bei 4–6 bist du schneller, bei 1–3 erwischt dich Kiras Schnabel (−1 Herz).", win: "d8", lose: "d7", loseHp: 1, loseText: "ZACK! Kira ist schneller und zwickt dich in den Finger. Sie funkelt dich an: So wird das nichts. Vielleicht gibt es einen freundlicheren Weg?" },
+    },
+    {
+      id: "d7b", scene: "baum",
+      text: `Du rührst dich nicht. Eine Minute. Zwei. Kira beruhigt sich, hüpft zur Seite — und schiebt mit dem Schnabel ein Stück Rinde beiseite: <em>ein zweites, verstecktes Lager!</em> Darin: Bolts <strong>silberne Trillerpfeife</strong>, sein <strong>Schlüsselbund</strong> und eine Münzsammlung, die seit Wochen vermisst wird. Du packst alles vorsichtig ein — DAS wird Bolt freuen. Kira beäugt dich … fast schon freundlich. Geduld zahlt sich aus.`,
+      choices: [{ label: "Und jetzt: der Pokal", to: "d7", take: ["geheim_fund"] }],
+    },
+    {
+      id: "d8", scene: "schulfest", end: "win",
+      text: `Samstag, Schulfest! Vor versammelter Schule löst du den Fall auf: „Kein Dieb, kein Einbrecher — sondern <strong>Kira die Elster</strong>! Die Kratzer: ihre Krallen. Die Feder: ihre. Das Fenster stand offen, die Tür war abgeschlossen — kein Mensch kommt da rein. {hat:hinweis_kaugummi?Und der Kaugummi war eine falsche Fährte: Herr Bolt suchte nur seine Pfeife!:}“ Frau Sommer strahlt, Krauses Lichterketten funkeln, Mias Glitzer-Banner hängt über der Bühne — plötzlich will jeder mit ihr basteln. {hat:geheim_fund?Herr Bolt fällt fast in Ohnmacht vor Freude, als du ihm Pfeife UND Schlüsselbund überreichst — er pfeift vor Glück ein ganzes Konzert.:} {hat:freund_elster?Und Kira? Die sitzt mit ihrer neuen Glitzerfolie auf dem Pokalschrank und wurde feierlich zum „Ehren-Wachvogel der Trophäensammlung“ ernannt.:} Frau Sommer überreicht dir eine Urkunde: <strong>„Meisterdetektiv des Detektivbüros Blitz“</strong>. Fall gelöst!`,
     },
   ],
 };
@@ -179,7 +281,7 @@ const INSEL = {
   items: {
     coco: "🦜 Coco der Papagei", feuerstein: "🔥 Feuerstein", fackel: "🕯️ Fackel",
     karte1: "🗺️ Kartenstück 1", karte2: "🗺️ Kartenstück 2", karte3: "🗺️ Kartenstück 3",
-    werkzeug: "🧰 Werkzeugkiste", perle: "🫧 Leuchtperle", tagebuch: "📜 Knochenbeins Tagebuch",
+    werkzeug: "🧰 Werkzeugkiste", perle: "🫧 Leuchtperle", tagebuch: "📜 Knochenbeins Tagebuch", saebel: "🗡️ Knochenbeins Säbel",
   },
   rescue: { text: "Du erwachst im warmen Sand des Lagers. {hat:coco?Coco hat so lange gekreischt, bis du wieder zu dir kamst, und tupft dir jetzt wichtig mit einem Blatt die Stirn ab.:Die Brandung hat dich sanft zurück ans Lager gespült.} Kokoswasser, tief durchatmen — weiter geht's!", to: "i4" },
   achievements: [
@@ -221,7 +323,7 @@ const INSEL = {
       ],
       choices: [
         { label: "🌊 Zum Wrack in der Lagune schwimmen", to: "il1", hideIf: ["karte1"] },
-        { label: "🌿 Den Dschungelpfad erkunden", to: "id1", hideIf: ["karte2"] },
+        { label: "🌿 Den Dschungelpfad erkunden", to: "id0", hideIf: ["karte2"] },
         { label: "🦇 In die Felshöhle steigen", to: "ih1", hideIf: ["karte3"] },
         { label: "🏴‍☠️ Mit der ganzen Karte zur Piratenruine!", to: "i5", require: ["karte1", "karte2", "karte3"], lockHint: "Erst alle drei Kartenstücke finden — Wrack, Dschungel und Höhle." },
       ],
@@ -285,7 +387,44 @@ const INSEL = {
     {
       id: "ih2", scene: "ruine",
       text: `Unten öffnet sich eine Halle voller Glühwürmchen — wie ein Sternenhimmel unter der Erde! An der Wand lehnt eine verblichene <strong>Piratenflagge</strong>, und darunter, in einer Blechdose: das <strong>dritte Kartenstück</strong>. Auf die Dose hat jemand gekritzelt: „Für den, der keine Angst hat. — K.“`,
-      choices: [{ label: "🗺️ Kartenstück und Flagge mitnehmen", to: "i4", take: ["karte3"] }],
+      choices: [
+        { label: "🗺️ Kartenstück und Flagge mitnehmen", to: "i4", take: ["karte3"] },
+        { label: "Den Glühwürmchen noch tiefer in den Berg folgen", to: "ih3", take: ["karte3"], hideIf: ["saebel"], secret: true },
+      ],
+    },
+
+    {
+      id: "id0", scene: "dschungel",
+      text: `Der Dschungelpfad gabelt sich: Geradeaus wartet die moosbewachsene <strong>Steinstatue</strong> mit grimmigem Gesicht — Wächterin des Weges, heißt es. Rechts gluckert ein <strong>flacher Fluss</strong> talwärts, vermutlich Richtung Wasserfall. {hat:coco?Coco zupft an deinem Ohr: „Statue! Statue klug!“ — oder war das eine Warnung?:}`,
+      hints: [
+        `Beide Wege führen zum Wasserfall — die Statue prüft dein Köpfchen, der Fluss dein Glück.`,
+        `Der Fluss klappt nur ab einer 5 (Kitzelfische!). Die Statue stellt dir dafür eine Rechenaufgabe.`,
+      ],
+      choices: [
+        { label: "🗿 Zur Statue — ich stelle mich dem Rätsel", to: "id1" },
+        { label: "🌊 Durch den Fluss waten (nur ab 5!)", to: "id_fluss" },
+      ],
+    },
+    {
+      id: "id_fluss",
+      dice: { text: "Barfuß durch den Fluss voller kitzliger Putzerfische — das hält nur aus, wer eine 5 oder 6 würfelt! Bei 1–4 lachst du dich kraftlos (−1 Herz).", threshold: 5, win: "id2", lose: "id0", loseHp: 1, loseText: "Hihihi — hahaha — NEIN! Die Kitzelfische sind gnadenlos. Du rettest dich japsend ans Ufer zurück und brauchst erstmal eine Pause." },
+    },
+    {
+      id: "ih3", scene: "ruine",
+      text: `Die Glühwürmchen schwirren voraus, tiefer und tiefer — bis sich eine kleine Kammer öffnet: <strong>Knochenbeins alte Übungshöhle!</strong> An der Wand Kreidestriche von Fecht-Übungen, und in einem Felsspalt steckt sein <strong>alter Säbel</strong> — stumpf wie ein Butterbrotmesser, aber als Hebel unbezahlbar. Du ziehst ihn mit beiden Händen heraus. <em>Schhhrk!</em>`,
+      choices: [{ label: "🗡️ Was für ein Fund! Zurück zum Lager", to: "i4", take: ["saebel"] }],
+    },
+    {
+      id: "i6", scene: "ruine",
+      text: `Drei Schritte nach Osten — du klopfst auf den Boden: <em>hohl!</em> Unter dem Moos: eine Steinplatte mit einem <strong>Zahlenschloss</strong> aus Drehringen … und an der Seite ein schmaler, verkeilter <strong>Spalt</strong>, wie gemacht für ein langes, flaches Stück Metall.`,
+      hints: [
+        `Zwei Wege unter die Platte: das Zahlenschloss knacken — oder kräftig hebeln, wenn du das richtige Werkzeug hast.`,
+        `{hat:saebel?Der richtige Schritt: Knochenbeins Säbel in den Spalt und hebeln!:Mit Knochenbeins Säbel (versteckt bei den Glühwürmchen in der Felshöhle) könntest du die Platte einfach aufhebeln. Sonst: rechnen!}`,
+      ],
+      choices: [
+        { label: "🔢 Das Zahlenschloss knacken (Rätsel)", to: "i6r" },
+        { label: "🗡️ Mit Knochenbeins Säbel aufhebeln", to: "i7", require: ["saebel"], lockHint: "Dafür bräuchtest du etwas Langes, Flaches aus Metall … die Glühwürmchen in der Felshöhle wissen mehr." },
+      ],
     },
 
     // --- Ruine & Finale ---
@@ -295,7 +434,7 @@ const INSEL = {
       riddle: { question: "Wo geht die Sonne auf — in welche Himmelsrichtung gehst du?", options: ["Nach Osten", "Nach Westen", "Nach Norden", "Nach Süden"], answer: 0, hint: "Merksatz: Im OSTEN geht die Sonne auf, im Süden steigt sie hoch …", win: "i6" },
     },
     {
-      id: "i6", scene: "ruine",
+      id: "i6r", scene: "ruine",
       text: `Drei Schritte nach Osten — du klopfst auf den Boden: <em>hohl!</em> Unter dem Moos: eine Steinplatte mit eingemeißelten Zeichen und einem Drehschloss aus Zahlenringen. Darüber steht: „Knochenbeins Lieblingszahl: <strong>7 × 7 − 7</strong>“`,
       riddle: { question: "7 × 7 − 7 = ?", answer: "42", hint: "Erst 7 × 7 rechnen, dann 7 abziehen.", win: "i7" },
     },
@@ -346,7 +485,7 @@ const FUSSBALL = {
   maxHp: 5,
   items: {
     training_schuss: "⚽ Spezialschuss", training_pass: "🎯 Pass-Magie", training_kondition: "🏃 Turbo-Kondition",
-    teamgeist: "🤝 Teamgeist", fairplay: "🏵️ Fairplay-Herz",
+    teamgeist: "🤝 Teamgeist", fairplay: "🏵️ Fairplay-Herz", spion1: "🕵️ Roboter-Spielanalyse",
   },
   rescue: { text: "Trainerin Tante Resi drückt dir Tee und eine Banane in die Hand. „Champions fallen hin und stehen wieder auf“, sagt sie und klopft dir auf die Schulter. Du fühlst dich wie neu!", to: "f3" },
   achievements: [
@@ -379,7 +518,10 @@ const FUSSBALL = {
     {
       id: "f3", scene: "stadion",
       text: `Das Turnierstadion liegt versteckt in einem Tal und ist … nun ja: <em>magisch</em>. Die Eckfahnen flüstern, der Anstoßkreis leuchtet, und die Anzeigetafel zwinkert dir zu. Die Auslosung: Im Viertelfinale wartet <strong>Robo-Kick 04</strong> — elf höfliche Roboter, die noch nie einen Fehlpass gespielt haben.`,
-      choices: [{ label: "🤖 Anpfiff!", to: "m1" }],
+      choices: [
+        { label: "🤖 Anpfiff!", to: "m1" },
+        { label: "🕵️ Vorher die Roboter heimlich beim Aufwärmen beobachten", to: "sp1", hideIf: ["spion1"] },
+      ],
     },
     {
       id: "m1", scene: "stadion",
@@ -391,6 +533,7 @@ const FUSSBALL = {
       choices: [
         { label: "🎯 Pass-Magie auspacken: schneller als ihr Prozessor!", to: "m1b", require: ["training_pass"], lockHint: "Dafür hättet ihr Passtraining gebraucht." },
         { label: "🚀 Mit hohen, wilden Bällen Chaos stiften", to: "m1_dice" },
+        { label: "🕵️ Eure Spielanalyse ausnutzen: Ihr kennt ihr Muster!", to: "m1b", showIf: ["spion1"] },
       ],
     },
     {
@@ -482,6 +625,16 @@ const FUSSBALL = {
       id: "m3b2", scene: "finale",
       text: `Das Stadion hält den Atem an. Ben flüstert: „Du schaffst das, Käpt'n.“ {hat:teamgeist?Hinter dir steht das ganze Team Schulter an Schulter — und plötzlich fühlt sich der Ball ganz leicht an.:}`,
       choices: [{ label: "⚽ Noch einmal anlaufen!", to: "m3_dice" }],
+    },
+    {
+      id: "sp1", scene: "stadion",
+      text: `Vom Zaun aus beobachtet ihr das Aufwärmen der Roboter — und Lena notiert mit: Sie spielen ihre Pässe in einem festen Muster! <em>Links, links, rechts. Links, links, rechts. Links, links, …</em>`,
+      riddle: { question: "Links, links, rechts — links, links, rechts — links, links, … Wohin geht der nächste Pass?", options: ["Nach rechts", "Noch einmal links", "Geradeaus", "Das Muster wechselt jetzt"], answer: 0, hint: "Das Muster ist ein Dreierpack: links, links, RECHTS. Zähl nach, wo ihr gerade steht: zwei „links“ sind schon vorbei …", win: "sp2" },
+    },
+    {
+      id: "sp2", scene: "kabine",
+      text: `„Dreierpack-Muster, immer gleich!“, flüstert Lena und malt es ins Spielheft. Ben grinst: „Wenn wir wissen, wohin sie passen, BEVOR sie passen …“ Das Team nickt sich zu. Mit dieser <strong>Spielanalyse</strong> könnt ihr die Roboter abfangen wie ein Uhrwerk.`,
+      choices: [{ label: "Jetzt aber: Anpfiff!", to: "f3", take: ["spion1"] }],
     },
     {
       id: "ende", scene: "podium", end: "win",
