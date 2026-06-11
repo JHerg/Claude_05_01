@@ -561,3 +561,13 @@ body.theme-adventure .btn-secret { border-color: #b89af0; }
 body.theme-adventure .stars { color: #f4d35e; }
 .ort-done { opacity: 0.72; border-style: dashed; }
 .btn-danger.btn { color: #fff; }
+
+/* ---------- Fall-Archiv v2: Kombinationstafel & Lügner ---------- */
+
+.kombi-scroll { overflow-x: auto; }
+.kombi-table td { font-size: 0.88rem; white-space: nowrap; }
+.kombi-match { background: rgba(83, 192, 106, 0.25); font-weight: 700; }
+.kombi-clash { background: rgba(179, 70, 58, 0.3); text-decoration: line-through; opacity: 0.8; }
+.kombi-raus { opacity: 0.45; text-decoration: line-through; }
+.hint-lie { border-left-color: #b3463a; background: rgba(179, 70, 58, 0.12); }
+.susp-lie { border-color: #b3463a; }
