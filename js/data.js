@@ -393,4 +393,13 @@ export const QUIZ_FRAGEN = [
   { q: "Wie nennt man gefrorenen Regen, der als Kugeln vom Himmel fällt?", o: ["Hagel", "Schnee", "Graupel", "Tau"], a: 0, info: "Hagelkörner können in Gewitterwolken mehrmals hoch- und runtergeschleudert werden, bis sie schwer genug sind." },
   { q: "Was zeigt ein Kompass an?", o: ["Die Himmelsrichtung Norden", "Die Uhrzeit", "Die Temperatur", "Die Höhe"], a: 0, info: "Die Nadel richtet sich am Magnetfeld der Erde aus." },
   { q: "Welches dieser Tiere kann am längsten ohne Wasser auskommen?", o: ["Das Kamel", "Das Pferd", "Der Hund", "Die Kuh"], a: 0, info: "Kamele speichern aber kein Wasser im Höcker — da ist Fett drin!" },
+  { q: "Wie schnell ist der Schall ungefähr in der Luft?", o: ["Etwa 343 Meter pro Sekunde", "Etwa 30 Meter pro Sekunde", "So schnell wie Licht", "Etwa 5 Kilometer pro Sekunde"], a: 0, info: "Darum siehst du den Blitz zuerst und hörst den Donner später — pro 3 Sekunden Abstand ist das Gewitter etwa 1 km entfernt." },
+  { q: "Welches Metall ist bei Zimmertemperatur flüssig?", o: ["Quecksilber", "Eisen", "Gold", "Aluminium"], a: 0, info: "Früher steckte es in Fieberthermometern — heute ist es wegen seiner Giftigkeit verboten." },
+  { q: "Wer komponierte die „Zauberflöte“?", o: ["Wolfgang Amadeus Mozart", "Ludwig van Beethoven", "Johann Sebastian Bach", "Joseph Haydn"], a: 0, info: "Mozart schrieb sie 1791 — Papagenos Lieder kennt man bis heute." },
+  { q: "Wie viele Zeitzonen gibt es ungefähr auf der Erde?", o: ["24", "12", "48", "7"], a: 0, info: "Theoretisch eine pro Stunde — manche Länder leisten sich aber halbe Stunden Unterschied, z. B. Indien." },
+  { q: "Was misst ein Thermometer?", o: ["Die Temperatur", "Den Luftdruck", "Die Luftfeuchtigkeit", "Die Windstärke"], a: 0, info: "Luftdruck misst das Barometer, Luftfeuchtigkeit das Hygrometer." },
+  { q: "Welcher Planet ist der Sonne am nächsten?", o: ["Merkur", "Venus", "Mars", "Erde"], a: 0, info: "Tagsüber bis 430 °C heiß, nachts eisige −180 °C — Merkur hat fast keine Atmosphäre als Decke." },
+  { q: "Woraus wird Papier hauptsächlich hergestellt?", o: ["Aus Holzfasern", "Aus Baumwolle", "Aus Plastik", "Aus Stroh"], a: 0, info: "Altpapier-Recycling spart dabei mehr als die Hälfte der Energie." },
+  { q: "Wie nennt man die Wissenschaft von den Sternen und dem Weltall?", o: ["Astronomie", "Astrologie", "Geologie", "Meteorologie"], a: 0, info: "Astrologie (Horoskope) ist KEINE Wissenschaft — der Unterschied ist Prüfungswissen!" },
+  { q: "Welches Organ reinigt unser Blut wie ein Filter?", o: ["Die Nieren", "Die Lunge", "Der Magen", "Das Herz"], a: 0, info: "Beide Nieren zusammen filtern am Tag rund 180 Liter Flüssigkeit — fast eine Badewanne!" },
 ];

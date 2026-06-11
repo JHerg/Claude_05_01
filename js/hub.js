@@ -52,13 +52,13 @@ function renderHome(container) {
 function renderLernen(container) {
   const menu = el("div", { class: "module-grid" },
     el("button", { class: "module-card", onclick: () => kopfrechnen(container) },
-      el("span", { class: "module-emoji" }, "➕"), el("strong", {}, "Kopfrechnen"), el("small", {}, "10 Aufgaben, drei Schwierigkeiten, Bestenliste.")),
+      el("span", { class: "module-emoji" }, "➕"), el("strong", {}, "Kopfrechnen"), el("small", {}, "10 Aufgaben, vier Stufen — von leicht bis Profi (Prozente & Klammern).")),
     el("button", { class: "module-card", onclick: () => sprint(container) },
       el("span", { class: "module-emoji" }, "⚡"), el("strong", {}, "Einmaleins-Sprint"), el("small", {}, "60 Sekunden — wie viele schaffst du?")),
     el("button", { class: "module-card", onclick: () => vokabeln(container) },
-      el("span", { class: "module-emoji" }, "🇬🇧"), el("strong", {}, "Englisch-Vokabeln"), el("small", {}, "Klasse 5/6 und 8/9 — 25 Themen mit fast 500 Vokabeln, als Lernkarten und Quiz.")),
+      el("span", { class: "module-emoji" }, "🇬🇧"), el("strong", {}, "Englisch-Vokabeln"), el("small", {}, "Klasse 5/6 und 8/9 — 25 Themen, 500 Vokabeln: Lernkarten, Quiz und Schreib-Quiz.")),
     el("button", { class: "module-card", onclick: () => wissensQuiz(container) },
-      el("span", { class: "module-emoji" }, "🌍"), el("strong", {}, "Wissens-Quiz"), el("small", {}, "Weltraum, Tiere, Körper & Co. — mit Aha-Fakten zu jeder Frage.")),
+      el("span", { class: "module-emoji" }, "🌍"), el("strong", {}, "Wissens-Quiz"), el("small", {}, "45 Fragen: Weltraum, Tiere, Körper & Co. — mit Aha-Fakt zu jeder Frage.")),
   );
   container.append(menu, bestenliste());
 }
@@ -95,11 +95,22 @@ function mathTask(level) {
     if (t < 0.7) { const b = 2 + r(8), c = 2 + r(8); return { q: `${b * c} ÷ ${b}`, a: c }; }
     const a = r(400), b = r(400); return { q: `${a} + ${b}`, a: a + b };
   }
-  // schwer
+  if (level === "schwer") {
+    const t = Math.random();
+    if (t < 0.4) { const a = 11 + r(14), b = 3 + r(9); return { q: `${a} × ${b}`, a: a * b }; }
+    if (t < 0.7) { const a = r(900), b = r(900); return { q: `${a} + ${b}`, a: a + b }; }
+    const a = 200 + r(700), b = r(199); return { q: `${a} − ${b}`, a: a - b };
+  }
+  // profi (Klasse 8/9): Prozente, Klammern, große Division, Zweischritt-Aufgaben
   const t = Math.random();
-  if (t < 0.4) { const a = 11 + r(14), b = 3 + r(9); return { q: `${a} × ${b}`, a: a * b }; }
-  if (t < 0.7) { const a = r(900), b = r(900); return { q: `${a} + ${b}`, a: a + b }; }
-  const a = 200 + r(700), b = r(199); return { q: `${a} − ${b}`, a: a - b };
+  if (t < 0.3) {
+    const pairs = [[10, 10 * r(60)], [20, 5 * r(80)], [25, 4 * r(90)], [50, 2 * r(200)], [75, 4 * r(60)]];
+    const [p, base] = pairs[Math.floor(Math.random() * pairs.length)];
+    return { q: `${p} % von ${base}`, a: Math.round((p / 100) * base) };
+  }
+  if (t < 0.55) { const a = r(18) + 2, b = r(18) + 2, c = 2 + r(7); return { q: `(${a} + ${b}) × ${c}`, a: (a + b) * c }; }
+  if (t < 0.8) { const b = 3 + r(9), c = 12 + r(80); return { q: `${b * c} ÷ ${b}`, a: c }; }
+  const a = 11 + r(14), b = 3 + r(6), c = 50 + r(400); return { q: `${a} × ${b} + ${c}`, a: a * b + c };
 }
 
 function quizRunner(container, { title, total, nextTask, onDone, timed }) {
@@ -183,6 +194,7 @@ function kopfrechnen(container) {
         el("button", { class: "btn btn-choice", onclick: () => start("leicht", "leicht") }, "🟢 Leicht — Plus & Minus bis 100"),
         el("button", { class: "btn btn-choice", onclick: () => start("mittel", "mittel") }, "🟡 Mittel — Einmaleins & Plus bis 800"),
         el("button", { class: "btn btn-choice", onclick: () => start("schwer", "schwer") }, "🔴 Schwer — großes Einmaleins & bis 1800"),
+        el("button", { class: "btn btn-choice", onclick: () => start("profi", "Profi") }, "🟣 Profi (Klasse 8/9) — Prozente, Klammern, Division"),
       ),
     ),
   );
@@ -257,7 +269,8 @@ function vokabelSet(container, level, set) {
       el("p", { class: "muted" }, `${level.title} · ${set.words.length} Vokabeln`),
       el("div", { class: "choices" },
         el("button", { class: "btn btn-choice", onclick: () => flashcards(container, level, set) }, "🃏 Lernkarten (tippen zum Umdrehen)"),
-        el("button", { class: "btn btn-choice", onclick: () => vocabQuiz(container, level, set) }, "❓ Quiz (10 Fragen)"),
+        el("button", { class: "btn btn-choice", onclick: () => vocabQuiz(container, level, set) }, "❓ Quiz (10 Fragen, Ankreuzen)"),
+        el("button", { class: "btn btn-choice", onclick: () => spellQuiz(container, level, set) }, "⌨️ Schreib-Quiz (10 Fragen, Eintippen — Profi!)"),
         el("button", { class: "btn btn-ghost", onclick: () => vokabelLevel(container, level) }, "Zurück"),
       ),
     ),
@@ -370,6 +383,78 @@ function wissensQuiz(container) {
       el("button", { class: "btn btn-ghost btn-small", onclick: () => route(container, ["lernen"]) }, "Abbrechen"),
     ),
   );
+}
+
+/** Antwort-Normalisierung: "to play" = "play", "go – went – gone" = "go", Klammern egal. */
+function vocabForms(en) {
+  const base = en.toLowerCase().trim();
+  const forms = new Set([base]);
+  forms.add(base.replace(/\s*\(.*?\)\s*/g, " ").trim());     // Klammern entfernen
+  const first = base.split("–")[0].split("(")[0].trim();        // erste Form bei "go – went – gone"
+  forms.add(first);
+  for (const f of [...forms]) {
+    if (f.startsWith("to ")) forms.add(f.slice(3));             // "to play" → "play"
+    else forms.add("to " + f);
+  }
+  return forms;
+}
+
+function spellQuiz(container, level, set) {
+  const questions = shuffle(set.words).slice(0, 10);
+  let i = 0, score = 0;
+  const qEl = el("div", { class: "quiz-question quiz-knowledge" });
+  const input = el("input", { class: "input input-quiz", placeholder: "English …", autocomplete: "off", autocapitalize: "off", spellcheck: "false" });
+  const feedback = el("p", { class: "quiz-feedback" });
+  const progress = el("p", { class: "muted" });
+  let locked = false;
+
+  const draw = () => {
+    locked = false;
+    const [, de] = questions[i];
+    qEl.textContent = `Wie heißt „${de}“ auf Englisch?`;
+    input.value = "";
+    input.focus();
+    progress.textContent = `Frage ${i + 1} von ${questions.length} · Richtig: ${score}`;
+  };
+
+  const next = () => {
+    i++;
+    if (i >= questions.length) {
+      const isBest = saveBest(`Schreib-Quiz ${level.emoji} ${set.title}, von 10`, score);
+      setTimeout(() => result(container, "lernen", `${score} von 10 richtig geschrieben!`, score >= 8 ? "🏆 Spelling master!" : score >= 5 ? "✍️ Solide — Schreiben ist die Königsdisziplin!" : "💪 Erst Lernkarten, dann nochmal tippen!", isBest), 1600);
+      return;
+    }
+    setTimeout(draw, 1600);
+  };
+
+  const check = () => {
+    if (locked) return;
+    const v = input.value.trim().toLowerCase();
+    if (!v) return;
+    locked = true;
+    const [en] = questions[i];
+    if (vocabForms(en).has(v)) {
+      score++;
+      feedback.textContent = "✅ Richtig!";
+      feedback.className = "quiz-feedback success";
+    } else {
+      feedback.textContent = `❌ Richtig wäre: ${en}`;
+      feedback.className = "quiz-feedback error";
+    }
+    next();
+  };
+
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); check(); } });
+  container.replaceChildren(
+    el("section", { class: "panel panel-narrow quiz" },
+      el("h3", {}, `⌨️ Schreib-Quiz: ${set.title}`),
+      qEl,
+      el("div", { class: "free-input" }, input, el("button", { class: "btn", onclick: check }, "➤")),
+      feedback, progress,
+      el("button", { class: "btn btn-ghost btn-small", onclick: () => vokabelSet(container, level, set) }, "Abbrechen"),
+    ),
+  );
+  draw();
 }
 
 /* ==================== 🍳 Koch-Pilot ==================== */

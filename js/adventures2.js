@@ -210,14 +210,14 @@ const DETEKTIV = {
     {
       id: "d5_falsch", scene: "hof",
       text: `Eisige Stille. Die beschuldigte Person schnappt nach Luft, Frau Sommer hebt eine Augenbraue: „Und die <em>Beweise</em>?“ Du stammelst — und merkst selbst: Das Alibi aus dem Besucherbuch zerlegt deine Anklage in der Luft. Wie peinlich (−1 Herz). „Noch ein Versuch“, sagt Frau Sommer streng, „aber diesmal mit Köpfchen.“`,
-      effect: { hp: -1 },
+      effectAlways: { hp: -1 },
       choices: [{ label: "Tief durchatmen — neue Anklage", to: "d5" }],
     },
 
     // ----- Showdown am Baum -----
     {
       id: "d6", scene: "baum",
-      text: `Raunen in der Menge — und dann marschiert die ganze Gesellschaft zum <strong>Kastanienbaum</strong>. Hoch oben, gut versteckt, thront tatsächlich ein <strong>Nest voller Glitzerkram</strong>. Du erkennst sogar einen goldenen Henkel! „Beweise es“, sagt Frau Sommer leise. Jetzt heißt es: nach oben. Aber wie?`,
+      text: `Raunen in der Menge. {hat:hinweis_nest?Du führst alle zielsicher zum <strong>Kastanienbaum</strong> — du weißt ja längst, wo es glitzert.:„Und wo ist die Beute?“, fragt Frau Sommer. Du überlegst laut: „Elstern verstecken ihre Schätze hoch oben — und der höchste Baum weit und breit ist …“ Alle Köpfe drehen sich zur alten <strong>Kastanie</strong>.} Hoch oben, gut versteckt, thront tatsächlich ein <strong>Nest voller Glitzerkram</strong>. Du erkennst sogar einen goldenen Henkel! „Beweise es“, sagt Frau Sommer leise. Jetzt heißt es: nach oben. Aber wie?`,
       hints: [
         `Es gibt drei Wege nach oben — zwei sichere und einen wackeligen.`,
         `{hat:leiter?Du hast Krauses Leiter!:Krauses Leiter (hilf ihm beim Tragen oder bring ihm Kakao)}{hat:mia_freund? — und Mia kennt den Weg übers Vordach.: oder Mias Vordach-Trick (hilf ihr beim Banner) wären sichere Wege.}`,
@@ -288,6 +288,7 @@ const INSEL = {
     { id: "papageienfreund", emoji: "🦜", label: "Papageienfreund — Coco aus dem Netz befreit", test: (s) => s.items.includes("coco") },
     { id: "perlentaucher", emoji: "🫧", label: "Perlentaucher — das Geheimnis der Lagune gefunden", test: (s) => s.items.includes("perle") },
     { id: "ehrenpirat", emoji: "🏴‍☠️", label: "Ehrenpirat — Knochenbeins letzten Wunsch erfüllt", test: (s) => s.items.includes("respekt") },
+    { id: "saebelraessler", emoji: "🗡️", label: "Säbelrassler — Knochenbeins Übungshöhle gefunden", test: (s) => s.items.includes("saebel") },
     { id: "unverwundbar", emoji: "💪", label: "Unverwundbar — mit vollen Herzen ins Ziel", test: (s) => s.hp >= 5 },
   ],
   start: "i1",
@@ -325,6 +326,7 @@ const INSEL = {
         { label: "🌊 Zum Wrack in der Lagune schwimmen", to: "il1", hideIf: ["karte1"] },
         { label: "🌿 Den Dschungelpfad erkunden", to: "id0", hideIf: ["karte2"] },
         { label: "🦇 In die Felshöhle steigen", to: "ih1", hideIf: ["karte3"] },
+        { label: "Noch einmal zu den Glühwürmchen in die Felshöhle …", to: "ih1", showIf: ["karte3"], hideIf: ["saebel"], secret: true },
         { label: "🏴‍☠️ Mit der ganzen Karte zur Piratenruine!", to: "i5", require: ["karte1", "karte2", "karte3"], lockHint: "Erst alle drei Kartenstücke finden — Wrack, Dschungel und Höhle." },
       ],
     },
@@ -547,7 +549,7 @@ const FUSSBALL = {
     },
     {
       id: "m1b", scene: "stadion",
-      text: `Ihr spielt plötzlich <em>verrückt</em>: Hackentricks, Drehungen, Pässe ohne hinzusehen! Die Roboter-Augen blinken rot: „FEHLER. FEHLER. UNLOGISCH.“ Zweimal schlägt es hinter ihrem verdutzten Torwart ein — <strong>2:1, Sieg!</strong> Die Roboter gratulieren höflich und ölen sich die Tränen weg. Doch abends in der Kabine fliegen die Fetzen: Stürmer <strong>Ben</strong> brüllt Torhüterin <strong>Lena</strong> an, sie sei am Gegentor schuld. Lena schreit zurück. Das Team schaut zu dir.`,
+      text: `Euer Plan geht auf! {hat:spion1?Ihr kennt jedes Muster und fangt die Pässe ab, BEVOR sie gespielt sind.:}{hat:training_pass?Eure Pass-Magie ist schneller, als ihre Prozessoren rechnen können.:} Die Roboter-Augen blinken rot: „FEHLER. FEHLER. UNLOGISCH.“ Zweimal schlägt es hinter ihrem verdutzten Torwart ein — <strong>2:1, Sieg!</strong> Die Roboter gratulieren höflich und ölen sich die Tränen weg. Doch abends in der Kabine fliegen die Fetzen: Stürmer <strong>Ben</strong> brüllt Torhüterin <strong>Lena</strong> an, sie sei am Gegentor schuld. Lena schreit zurück. Das Team schaut zu dir.`,
       choices: [
         { label: "🤝 Beide an einen Tisch holen und zuhören", to: "f4" },
         { label: "😤 Machtwort: „Schluss jetzt, ihr spielt beide!“", to: "f4b" },

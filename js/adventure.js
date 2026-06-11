@@ -335,6 +335,8 @@ function renderPlay(container, saveId) {
       if (node.effect?.hp) changeHp(node.effect.hp);
       if (node.effectIf && has(node.effectIf.hat) && node.effectIf.hp) changeHp(node.effectIf.hp);
     }
+    // Effekte, die bei JEDEM Besuch wirken (z. B. wiederholte falsche Anschuldigung)
+    if (viaChoice && node.effectAlways?.hp) changeHp(node.effectAlways.hp);
 
     putSave(save);
     renderNode(node);

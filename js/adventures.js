@@ -357,8 +357,8 @@ const STERNENBASIS = {
       text: `Vor dir sitzt ein Wesen wie ein riesiger grüner Wackelpudding mit Kulleraugen — ein <strong>Glibber</strong>! Er ist als blinder Passagier an Bord gekommen und sieht kein bisschen gefährlich aus. Eher … satt. In seinem durchsichtigen Bauch schimmert etwas Kantiges: <em>der Energiekristall!</em> Er hat ihn verschluckt, weil er so schön geglitzert hat.`,
       hints: [
         `Glibber lieben Süßes über alles. Gab es an Bord nicht irgendwo etwas Leckeres?`,
-        `{hat:pudding?Du hast den Astronautenpudding dabei — Glibber können da unmöglich widerstehen!:In der Bordküche gibt es Astronautenpudding (Galaktische Vanille!).}`,
-        `{hat:pudding?Der richtige Schritt: Biete dem Glibber den Pudding zum Tausch an — friedlich, sicher und einen Erfolg wert.:Der richtige Schritt: Geh zurück in die Küche, hol den Pudding und biete ihn zum Tausch an. Kitzeln geht zur Not auch — ist aber Glückssache.}`,
+        `Es gibt ZWEI friedliche Wege: der Astronautenpudding aus der Bordküche — oder die Leucht-Mondbeeren aus dem Gewächshaus auf Deck 2.`,
+        `Der richtige Schritt: Hol etwas Süßes (Pudding aus der Küche oder Mondbeeren aus dem Gewächshaus) und biete es zum Tausch an — friedlich, sicher und einen Erfolg wert. Kitzeln ist reine Glückssache.`,
       ],
       choices: [
         { label: "🍮 Den Pudding als Tauschgeschäft anbieten", to: "l3", require: ["pudding"], drop: ["pudding"], take: ["tausch"], lockHint: "Du hast nichts Leckeres dabei. (In der Küche gäbe es was …)" },
