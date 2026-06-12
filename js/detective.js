@@ -9,8 +9,9 @@
 // Anklage jederzeit möglich; Fehlanklage kostet ein Herz.
 
 import { CASES, BONUS_TEXT, NIETEN } from "./cases.js";
+import { SZENEN } from "./cases_szenen.js";
 import { getModuleState, setModuleState } from "./storage.js";
-import { el, escapeHtml, shuffle, sfx, confetti } from "./ui.js";
+import { el, escapeHtml, shuffle, sfx, confetti, typewriter, speak, canSpeak, stopSpeak } from "./ui.js";
 
 const KEY = "fallarchiv";
 const MAX_HERZEN = 3;
@@ -29,11 +30,63 @@ export function route(container) {
 }
 
 function overlay(...children) {
-  const node = el("div", { class: "overlay", onclick: (e) => { if (e.target === node) node.remove(); } },
+  const node = el("div", { class: "overlay", onclick: (e) => { if (e.target === node) { stopSpeak(); node.remove(); } } },
     el("div", { class: "overlay-card" }, ...children),
   );
   document.body.append(node);
   return node;
+}
+
+/** Erzähl-Absatz mit Schreibmaschinen-Effekt und Vorlesen-Knopf. */
+function prosa(html) {
+  const wrap = el("div", { class: "prosa" });
+  const text = el("div", { class: "prosa-text" });
+  typewriter(text, html);
+  wrap.append(text);
+  if (canSpeak()) {
+    const btn = el("button", { class: "tab tool-btn prosa-read" }, "🔊 Vorlesen");
+    btn.addEventListener("click", () => {
+      if (btn.classList.contains("active")) { stopSpeak(); btn.classList.remove("active"); return; }
+      btn.classList.add("active");
+      speak(text.textContent, () => btn.classList.remove("active"));
+    });
+    wrap.append(btn);
+  }
+  return wrap;
+}
+
+/** Kino-Intro: Titelbild + Prolog-Szenen als Sequenz, dann startet die Ermittlung. */
+function playIntro(c, onDone) {
+  const sz = SZENEN[c.id];
+  const steps = [];
+  if (sz) {
+    steps.push({ html: `<div class="fall-bild">${sz.titelbild}</div><p class="fall-untertitel">Ein Fall für das Detektivbüro Blitz</p><h3 class="fall-titel">${c.emoji} ${c.title}</h3>`, plain: true, label: "Weiter ▸" });
+    for (const t of sz.prolog) steps.push({ html: t, label: "Weiter ▸" });
+  }
+  steps.push({ html: c.intro, label: "🔍 Ermittlung aufnehmen!" });
+
+  const content = el("div", {});
+  const nextBtn = el("button", { class: "btn btn-big" });
+  let i = 0;
+  const draw = () => {
+    stopSpeak();
+    const step = steps[i];
+    if (step.plain) {
+      content.innerHTML = step.html;
+      content.append(el("p", { class: "muted center" }, `Verdächtige: ${c.verdaechtige.length} · Orte: ${c.orte.length} · Einer von ihnen lügt …`));
+    } else {
+      content.replaceChildren(prosa(step.html));
+    }
+    nextBtn.textContent = step.label;
+  };
+  nextBtn.addEventListener("click", () => {
+    sfx("click");
+    i++;
+    if (i >= steps.length) { stopSpeak(); node.remove(); onDone?.(); return; }
+    draw();
+  });
+  const node = overlay(content, el("div", { class: "center" }, nextBtn));
+  draw();
 }
 
 // ---------- Fall-Auswahl ----------
@@ -136,7 +189,7 @@ function renderPlay(container, showIntro = false) {
       el("span", { class: "hud-hearts" }, "❤️".repeat(Math.max(0, a.herzen)) + "🤍".repeat(MAX_HERZEN - Math.max(0, a.herzen))),
       el("span", { class: "chip" }, `🕵️ Noch im Visier: ${verbleibend} von ${c.verdaechtige.length}`),
       el("span", { class: "chip" }, `🗂️ Alibi-Checks übrig: ${maxChecks - a.checked.length}`),
-      el("button", { class: "tab tool-btn", onclick: () => overlay(el("h3", {}, "📋 Der Auftrag"), el("p", { html: c.intro }), el("button", { class: "btn", onclick: (e) => e.target.closest(".overlay").remove() }, "An die Arbeit!")) }, "📋 Auftrag"),
+      el("button", { class: "tab tool-btn", onclick: () => playIntro(c) }, "🎬 Der Fall"),
       el("button", { class: "tab tool-btn", onclick: () => {
         if (!confirm("Fall wirklich abbrechen? Beim nächsten Mal wird alles neu gemischt.")) return;
         st.active = null; save(st); renderSelect(container);
@@ -222,28 +275,56 @@ function renderPlay(container, showIntro = false) {
     );
     if (!visited) {
       card.addEventListener("click", () => {
-        a.besucht.push(o.id);
-        const box = el("p", { class: "hint-box" });
-        if (inhalt.art === "merkmal") {
-          a.found.push(inhalt.mid);
-          sfx("item");
-          const m = merkmalById[inhalt.mid];
-          box.innerHTML = `${m.emoji} ${m.clue(escapeHtml(culprit.werte[inhalt.mid]))}`;
-        } else if (inhalt.art === "bonus") {
-          a.bonus = (a.bonus || 0) + 1;
-          sfx("win");
-          box.innerHTML = BONUS_TEXT;
-        } else {
-          sfx("fail");
-          box.innerHTML = `🕸️ ${escapeHtml(inhalt.text)}`;
-        }
-        persist();
-        overlay(
-          el("h3", {}, `${o.emoji} ${o.name}`),
-          el("p", { class: "muted" }, o.flavor),
-          box,
-          el("button", { class: "btn", onclick: (e) => { e.target.closest(".overlay").remove(); renderPlay(container); } }, "📓 Notiert!"),
-        );
+        const sz = SZENEN[c.id]?.orte?.[o.id];
+        const content = el("div", {});
+        const footer = el("div", { class: "center" });
+        const node = overlay(content, footer);
+
+        // ----- Akt 1: Ankommen — Bild und Szene wirken lassen -----
+        const akt1 = () => {
+          content.replaceChildren();
+          if (sz?.bild) { const b = el("div", { class: "fall-bild" }); b.innerHTML = sz.bild; content.append(b); }
+          content.append(el("h3", {}, `${o.emoji} ${o.name}`));
+          content.append(prosa(sz?.szene || o.flavor));
+          const weiter = el("button", { class: "btn btn-big" }, "🔍 Genauer untersuchen …");
+          weiter.addEventListener("click", () => { sfx("click"); akt2(); });
+          footer.replaceChildren(weiter);
+        };
+
+        // ----- Akt 2: Der Fund -----
+        const akt2 = () => {
+          stopSpeak();
+          a.besucht.push(o.id);
+          const box = el("p", { class: "hint-box" });
+          const intros = SZENEN[c.id]?.fundIntro || ["Und dann siehst du es:"];
+          const lead = intros[Math.floor(Math.random() * intros.length)];
+          if (inhalt.art === "merkmal") {
+            a.found.push(inhalt.mid);
+            sfx("item");
+            const m = merkmalById[inhalt.mid];
+            box.innerHTML = `${m.emoji} ${m.clue(escapeHtml(culprit.werte[inhalt.mid]))}`;
+          } else if (inhalt.art === "bonus") {
+            a.bonus = (a.bonus || 0) + 1;
+            sfx("win");
+            box.innerHTML = BONUS_TEXT;
+          } else {
+            sfx("fail");
+            box.innerHTML = `🕸️ ${escapeHtml(inhalt.text)}`;
+          }
+          persist();
+          content.replaceChildren();
+          if (sz?.bild) { const b = el("div", { class: "fall-bild fall-bild-dim" }); b.innerHTML = sz.bild; content.append(b); }
+          content.append(
+            el("h3", {}, `${o.emoji} ${o.name}`),
+            el("p", { class: "fund-lead" }, inhalt.art === "niete" ? "Du suchst gründlich, hebst alles an, leuchtest in jede Ritze …" : lead),
+            box,
+          );
+          const done = el("button", { class: "btn btn-big" }, "📓 Notiert!");
+          done.addEventListener("click", () => { stopSpeak(); node.remove(); renderPlay(container); });
+          footer.replaceChildren(done);
+        };
+
+        akt1();
       });
     }
     orteGrid.append(card);
@@ -389,12 +470,5 @@ function renderPlay(container, showIntro = false) {
     el("p", { class: "muted center" }, "💡 Drei Wege zum Täter: Spuren mit Steckbriefen abgleichen, Lügner bei der Befragung ertappen — oder das richtige Alibi platzen lassen. Du musst nicht alles finden!"),
   );
 
-  if (showIntro) {
-    overlay(
-      el("h3", {}, `${c.emoji} ${c.title}`),
-      el("p", { html: c.intro }),
-      el("p", { class: "muted" }, `Verdächtige: ${c.verdaechtige.length} · Orte: ${c.orte.length} · Alibi-Checks: ${BASIS_CHECKS} (+ Bonus versteckt!) · Herzen: ${MAX_HERZEN}`),
-      el("button", { class: "btn btn-big", onclick: (e) => e.target.closest(".overlay").remove() }, "🔍 Ermittlung aufnehmen!"),
-    );
-  }
+  if (showIntro) playIntro(c);
 }

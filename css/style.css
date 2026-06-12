@@ -571,3 +571,14 @@ body.theme-adventure .stars { color: #f4d35e; }
 .kombi-raus { opacity: 0.45; text-decoration: line-through; }
 .hint-lie { border-left-color: #b3463a; background: rgba(179, 70, 58, 0.12); }
 .susp-lie { border-color: #b3463a; }
+
+/* ---------- Fall-Archiv v3: Kino-Intro & Ort-Szenen ---------- */
+
+.fall-bild { border-radius: 12px; overflow: hidden; border: 2px solid var(--line); margin-bottom: 12px; }
+.fall-bild svg { display: block; width: 100%; height: auto; }
+.fall-bild-dim { opacity: 0.65; }
+.fall-titel { text-align: center; font-size: 1.6rem; margin: 4px 0; }
+.fall-untertitel { text-align: center; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; font-size: 0.8rem; margin: 8px 0 0; }
+.prosa-text { font-size: 1.05rem; line-height: 1.65; }
+.prosa-read { margin-top: 10px; }
+.fund-lead { font-style: italic; color: var(--muted); }
