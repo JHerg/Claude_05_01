@@ -582,3 +582,36 @@ body.theme-adventure .stars { color: #f4d35e; }
 .prosa-text { font-size: 1.05rem; line-height: 1.65; }
 .prosa-read { margin-top: 10px; }
 .fund-lead { font-style: italic; color: var(--muted); }
+
+/* ---------- Fall-Archiv v4: Suchstellen & Notizblock ---------- */
+
+.such-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+.such-spot {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); color: var(--ink);
+  border: 2px solid var(--line); border-radius: 12px;
+  padding: 12px 14px; cursor: pointer; font-family: var(--font-body); font-size: 0.98rem;
+  text-align: left; transition: transform 0.08s, border-color 0.12s;
+}
+.such-spot:hover { border-color: var(--accent); transform: translateY(-1px); }
+.such-spot:disabled { cursor: default; transform: none; }
+.such-spot.leer { opacity: 0.5; border-style: dashed; }
+.such-emoji { font-size: 1.4rem; }
+.such-ausgabe { min-height: 1em; margin-top: 6px; }
+.such-leer { color: var(--muted); font-style: italic; }
+
+.notiz-liste { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 4px; }
+.notiz-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.notiz-info { flex: 1; min-width: 60%; }
+.notiz-spur { color: var(--accent-dark); font-weight: 700; }
+body.theme-adventure .notiz-spur { color: #f4d35e; }
+.notiz-chip {
+  font-family: var(--font-display); font-size: 0.9rem;
+  border: 2px solid var(--line); border-radius: 999px;
+  padding: 5px 12px; cursor: pointer; white-space: nowrap;
+}
+.notiz-neutral { background: var(--card); color: var(--muted); }
+.notiz-ja { background: rgba(83, 192, 106, 0.2); border-color: var(--green); color: var(--green); }
+body.theme-adventure .notiz-ja { color: #7fe09a; }
+.notiz-nein { background: rgba(179, 70, 58, 0.18); border-color: #b3463a; color: #b3463a; }
+body.theme-adventure .notiz-nein { color: #ff9d8a; }

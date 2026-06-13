@@ -124,3 +124,35 @@ export const SZENEN = {
     },
   },
 };
+
+// Antippbare Suchstellen pro Ort. An EINER liegt die Spur (zufällig) — die
+// anderen geben nur Atmosphäre. Format: [emoji, name, "leer"-Text].
+export const SUCHPUNKTE = {
+  torte: {
+    kueche: [["🗄️","Schublade","Schneebesen, Ausstechförmchen, ein einsames Gummibärchen — sonst nichts."],["🪣","Mülleimer","Altes Tortenpapier und eine leere Sahnedose. Igitt, aber harmlos."],["🚪","Hinter der Tür","Nur ein Wischmopp. Der schweigt zu allem."],["🍽️","Unter dem Tisch","Krümel, Krümel, Krümel …"]],
+    flur: [["🚪","Fußmatte","Darunter klebt ein alter Kaugummi. Beweiswert: null."],["📌","Pinnwand","Der Festplan flattert. Spannend, aber keine Spur."],["🔥","Heizkörper","Dahinter nur Staubmäuse auf der Flucht."],["👟","Schuhabstreifer","Im Gitter steckt etwas …"]],
+    hof: [["🎪","Unter dem Festtisch","Die Tischdecke verdeckt nur leere Bierbänke."],["🗑️","Mülltonne","Pappteller, Pappteller, Pappteller."],["🍭","Zuckerwattemaschine","Klebrig. Süß. Aber ohne Hinweis."],["🌳","Gebüsch","Zwischen den Zweigen blitzt etwas auf!"]],
+    keller: [["📚","Regal","Ersatzgirlanden und Spinnweben."],["🫙","Einmachgläser","Omas Gurken von 2019. Bleiben besser zu."],["📦","Hinter den Kisten","Eng, dunkel — und da liegt was!"],["💡","Lichtschalter-Ecke","Nur eine durchgebrannte Glühbirne."]],
+    muell: [["🟢","Linke Tonne","Bananenschalen. Klassiker, aber keine Spur."],["🔵","Rechte Tonne","Hier drin glänzt doch etwas …"],["⬇️","Boden daneben","Eine zertretene Verpackung, sonst nichts."],["🔛","Deckelritze","Klemmt nur ein Blatt Papier."]],
+    buehne: [["🎭","Hinter dem Vorhang","Staub tanzt im Scheinwerfer — und da, am Boden!"],["📦","Requisitenkiste","Pappkronen und ein Plastikschwert."],["🎵","Unter dem Notenständer","Ein verlorenes Notenblatt. Falscher Ton, keine Spur."],["🪵","Bühnenkante","Nur frische Sägespäne."]],
+    parkplatz: [["🚗","Zwischen den Autos","Ölflecken und ein platter Ball."],["🛒","Am Bollerwagen","An der Deichsel hängt etwas fest!"],["🕳️","Gully","Da unten glitzert nur Regenwasser."],["🧱","Bordsteinkante","Eine zerdrückte Dose. Pfand vergessen, Spur verpasst."]],
+  },
+  labor: {
+    labor: [["🔬","Unter dem Labortisch","Kreidestaub und eine verlorene Büroklammer."],["💨","Im Abzug","Riecht nach Essig. Sehen tust du nichts."],["🔥","Hinter dem Bunsenbrenner","Da klemmt doch etwas dahinter!"],["🗑️","Papierkorb","Zerknülltes Millimeterpapier."]],
+    fenster: [["🌵","Blumentopf","Die Erde ist verwühlt — und da steckt was drin!"],["🪟","Fenstergriff","Nur ein bisschen abgeblätterter Lack."],["🪟","Gardine","Staubig. Sehr staubig."],["🧱","Außensims","Taubendreck. Charmant."]],
+    schrank: [["🔝","Oberstes Fach","Leere Reagenzgläser, ordentlich aufgereiht."],["🔚","Unterstes Fach","Ganz hinten in der Ecke — da liegt etwas!"],["🧪","Hinter den Flaschen","Nur klirrendes Glas, kein Hinweis."],["🚪","Schranktür","Innen ein vergilbtes Periodensystem."]],
+    treppe: [["🪜","Treppenstufe","Eine glänzt verdächtig sauber gewischt."],["✋","Geländer","Klebrig vom Pausenbrot eines Erstklässlers."],["🧱","Wandvorsprung","Genau auf Kistenhöhe — da klemmt etwas!"],["⬇️","Unter der Treppe","Nur Putzeimer und Dunkelheit."]],
+    laborflur: [["🔒","Spind","Verschlossen. Daneben am Boden aber …"],["🧯","Feuerlöscher-Ecke","Der Löscher ist von 2011. Beeindruckend nutzlos."],["📏","Fußleiste","Hier hat sich etwas verfangen!"],["📋","Aushang-Tafel","Der Wissenschaftstag-Plan. Schön, aber leer an Spuren."]],
+    bibo: [["💺","Lesesessel","Noch warm — und in der Ritze steckt was!"],["📚","Bücherregal","Eine Lücke bei den Vulkanbüchern. Spannend, aber leer."],["🚪","Verbindungstür","Nur angelehnt, quietscht vorwurfsvoll."],["📰","Zeitschriftenständer","Comics von vorletzter Woche."]],
+    schulhof2: [["🌷","Blumenbeet","Mittendurch eine Schneise — und ein Abdruck!"],["⬜","Plattenweg","Eine Platte wackelt, darunter nur Erde."],["🌧️","Regenrinne","Verstopft mit Laub. Tropft beleidigt."],["🪑","Sitzbank","Frisch gestrichen — Vorsicht, nasse Farbe!"]],
+  },
+  schuhe: {
+    kabine: [["🔓","Spind","Innen ein vergessenes Trikot von Jule."],["🪵","Holzbank","Der feuchte Abdruck führt weiter zu …"],["🧺","Wäschekorb","Verschwitzte Stutzen. Niemand will da rein. Du musst."],["⬇️","Unter der Bank","Im Halbdunkel liegt etwas!"]],
+    gang: [["🚪","Türrahmen","Am Lack ein Kratzer, sonst nichts."],["🟫","Fußmatte","„Willkommen“ steht drauf. Mehr verrät sie nicht."],["🔥","Heizung","Dahinter eine verlorene Murmel von 2022."],["👣","Boden","Die feuchten Abdrücke sammeln sich genau hier!"]],
+    platz: [["🥅","Hinter dem Tor","Der Rasen ist plattgetreten — und da liegt was!"],["🚩","Eckfahne","Flattert. Weiß von nichts."],["⚪","Mittelkreis","Nur frisch gekalkte Linien."],["🪑","Auswechselbank","Eine kalte Trinkflasche, halb leer."]],
+    waschraum: [["🚰","Waschbecken","Noch nass — am Rand klebt etwas!"],["🪞","Spiegel","Ein Wischfleck in Augenhöhe. Aber kein Gegenstand."],["🧼","Seifenspender","Tropft rosa Seife. Sonst nichts."],["🕳️","Abfluss","Ein Haar und ein paar Grashalme … halt, ein Haar!"]],
+    tribuene: [["1️⃣","Unter Reihe 1","Im Streiflicht blitzt etwas auf!"],["🥤","Getränkebecher-Haufen","Drei Tage alt. Riecht nach Niederlage."],["🧣","Vergessener Schal","In den Vereinsfarben. Aber nicht der Täter."],["⬛","Dunkle Ecke","Spinnweben und ein leises Geräusch …"]],
+    kiosk: [["🪟","Klappfenster","Verriegelt. Davor liegt jedoch …"],["🥨","Brezelkorb","Verschoben — darunter klemmt was!"],["🧾","Theke","Eine zerknüllte Serviette. Charmant, aber leer."],["🗑️","Mülleimer","Eine Limoflasche. Pfand und Pech."]],
+    busparkplatz: [["🚌","Unter dem Bus","Im Schatten glänzt etwas!"],["🛞","Reifen","Frischer Matsch im Profil. Spannend, aber stumm."],["🧳","Kofferraum","Trikottaschen und Trinkflaschen, fein säuberlich."],["🚪","Vordertür","Noch warm. Daneben am Boden — Fehlanzeige."]],
+  },
+};
